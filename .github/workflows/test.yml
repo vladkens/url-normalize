@@ -6,11 +6,8 @@ on:
       - "*"
     tags-ignore:
       - "v*"
-    paths:
-      - "src/**.ts"
-      - "tests/**.ts"
-      - ".github/workflows/**"
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test:

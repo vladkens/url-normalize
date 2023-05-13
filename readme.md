@@ -10,9 +10,9 @@
   <a href="https://packagephobia.now.sh/result?p=url-normalize">
     <img src="https://badgen.net/packagephobia/publish/url-normalize" alt="size" />
   </a>
-  <a href="https://npmjs.org/package/url-normalize">
+  <!-- <a href="https://npmjs.org/package/url-normalize">
     <img src="https://badgen.net/npm/dm/url-normalize" alt="downloads" />
-  </a>
+  </a> -->
   <a href="https://npmjs.org/package/url-normalize">
     <img src="https://badgen.net/npm/licence/url-normalize" alt="license" />
   </a>
