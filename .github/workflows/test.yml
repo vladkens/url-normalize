@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+    branches:
+      - "*"
+    tags-ignore:
+      - "v*"
+    paths:
+      - "src/**.ts"
+      - "tests/**.ts"
+      - ".github/workflows/**"
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14, 16, 18, 20]
+    name: node-${{ matrix.node-version }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: yarn install --frozen-lockfile
+      - run: yarn format-check
+      - run: yarn test-cov
+      - run: yarn build

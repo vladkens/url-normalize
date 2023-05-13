@@ -1,0 +1,44 @@
+{
+  "name": "url-normalize",
+  "version": "1.1.0",
+  "author": "Vlad Pronsky <v.pronsky@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "rm -rf dist && microbundle -f cjs,modern",
+    "test": "uvu -r tsm tests/",
+    "test-cov": "c8 --include=src yarn test",
+    "test-watch": "watchexec -e ts 'clear && yarn test'",
+    "format-check": "prettier --check \"{src,tests}/**/*.{js,jsx,ts,tsx}\""
+  },
+  "devDependencies": {
+    "c8": "^7.13.0",
+    "microbundle": "^0.15.1",
+    "prettier": "^2.8.8",
+    "prettier-plugin-organize-imports": "^3.2.2",
+    "tsm": "^2.3.0",
+    "uvu": "^0.5.6"
+  },
+  "publishConfig": {
+    "source": "src/main.ts",
+    "main": "dist/main.cjs",
+    "exports": "dist/main.mjs"
+  },
+  "exports": {
+    "types": "./dist/main.d.ts",
+    "import": "./dist/main.mjs",
+    "require": "./dist/main.cjs"
+  },
+  "keywords": [
+    "url",
+    "normalize",
+    "normalization",
+    "uri",
+    "url-normalization",
+    "url-normalize",
+    "querystrings",
+    "domain",
+    "extract",
+    "canonical"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "bracketSpacing": true,
+  "printWidth": 100,
+  "semi": false,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "useTabs": false,
+  "overrides": [
+    {
+      "files": "*.test.ts",
+      "options": {
+        "printWidth": 120
+      }
+    }
+  ]
+}
