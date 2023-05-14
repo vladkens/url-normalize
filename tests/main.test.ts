@@ -1,6 +1,6 @@
 import { test } from "uvu"
 import { equal, not, throws } from "uvu/assert"
-import { extractDomain, extractDomainOrFail, Options, urlNormalize, urlNormalizeOrFail } from "../src/main"
+import { Options, extractDomain, extractDomainOrFail, urlNormalize, urlNormalizeOrFail } from "../src/main"
 
 const t = (url: string, exp: string | null, opts?: Options) => {
   return equal(urlNormalize(url, opts), exp, `FAIL: ${url} -> ${exp}`)
