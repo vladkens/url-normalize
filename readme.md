@@ -14,7 +14,7 @@
     <img src="https://badgen.net/npm/dm/url-normalize" alt="downloads" />
   </a> -->
   <a href="https://github.com/vladkens/url-normalize/blob/main/LICENSE">
-    <img src="https://badgen.net/npm/licence/url-normalize" alt="license" />
+    <img src="https://badgen.net/github/license/vladkens/url-normalize" alt="license" />
   </a>
 </div>
 
