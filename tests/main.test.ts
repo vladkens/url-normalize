@@ -222,6 +222,10 @@ test("should allow custom options", () => {
   t("example.com/#:~:text=hello%20world", "https://example.com/#:~:text=hello%20world", {
     keepTextFragment: true,
   })
+
+  // filter query params
+  t("example.com/?b=2&a=1", "https://example.com/?a=1", { filterQueryParams: (k, v) => k === "a" })
+  t("example.com/?c=3&b=2&a=1", "https://example.com/?a=1&c=3", { filterQueryParams: (k, v) => k === "a" || v == "3" })
 })
 
 test("custom protocol", () => {

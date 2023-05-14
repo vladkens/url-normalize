@@ -1,22 +1,25 @@
 {
   "type": "module",
   "name": "url-normalize",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "author": "Vlad Pronsky <v.pronsky@gmail.com>",
   "repository": "vladkens/url-normalize",
   "description": "Normalize URLs to a standardized form by removing unnecessary characters, decoding encoded characters, removing default index pages, removing trailing slashes, and more.",
   "license": "MIT",
   "keywords": [
-    "url",
-    "normalize",
+    "canonical",
+    "domain",
+    "extract",
+    "humanize",
     "normalization",
+    "normalize",
+    "punycode",
+    "querystrings",
+    "unicode",
     "uri",
     "url-normalization",
     "url-normalize",
-    "querystrings",
-    "domain",
-    "extract",
-    "canonical"
+    "url"
   ],
   "files": [
     "dist"
@@ -26,6 +29,7 @@
     "test": "uvu -r tsm tests/",
     "test-cov": "c8 --include=src yarn test",
     "test-watch": "watchexec -e ts 'clear && yarn test'",
+    "bench": "node --loader tsm --no-warnings benchmark.ts",
     "format": "prettier --write '{src,tests}/**/*.{js,jsx,ts,tsx}'",
     "format-check": "prettier --check '{src,tests}/**/*.{js,jsx,ts,tsx}'"
   },

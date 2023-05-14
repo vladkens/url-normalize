@@ -3,6 +3,7 @@ import { toUnicode } from "punycode"
 export type Options = {
   allowCustomProtocol?: boolean
   defaultProtocol?: string
+  filterQueryParams?: (key: string, value: string) => boolean
   forceProtocol?: string
   keepAuth?: boolean
   keepDirectoryIndex?: boolean
@@ -95,6 +96,14 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
     obj.search = obj.search.replace(/&$/, "") // remove last "&"
     obj.search = obj.search.replace(/&{2,}/, "&") // replace multiple "&"
     obj.search = obj.search.replace(/%20/g, "+") // replace "%20" to "+"
+
+    if (options.filterQueryParams) {
+      const params = new URLSearchParams(obj.search)
+      for (const [key, value] of params.entries()) {
+        if (!options.filterQueryParams(key, value)) params.delete(key)
+      }
+      obj.search = params.toString()
+    }
 
     if (options.sortQueryParams) {
       obj.searchParams.sort()

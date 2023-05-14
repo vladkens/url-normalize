@@ -143,6 +143,13 @@ urlNormalize("example.com/?b=2&b=1", { sortQueryParams: false })
 // -> "https://example.com/?b=2&b=1"
 ```
 
+### filterQueryParams
+
+```typescript
+urlNormalize("example.com/?c=3&b=2&a=1", { filterQueryParams: (k, v) => k === "a" || v == "3" })
+// -> https://example.com/?a=1&c=3
+```
+
 #### keepHash `(default: true)`
 
 ```typescript
@@ -189,7 +196,7 @@ urlNormalize("tg://example.com", { forceProtocol: "we" })
 // -> "we://example.com"
 ```
 
-#### unicodeDomain (default: false)
+#### unicodeDomain `(default: false)`
 
 ```typescript
 urlNormalize("👻💥.ws")
