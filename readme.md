@@ -13,7 +13,7 @@
   <!-- <a href="https://npmjs.org/package/url-normalize">
     <img src="https://badgen.net/npm/dm/url-normalize" alt="downloads" />
   </a> -->
-  <a href="https://npmjs.org/package/url-normalize">
+  <a href="https://github.com/vladkens/url-normalize/blob/main/LICENSE">
     <img src="https://badgen.net/npm/licence/url-normalize" alt="license" />
   </a>
 </div>
@@ -66,9 +66,25 @@ urlNormalize("https://example.com", { defaultProtocol: "http" })
 // -> "https://example.com"
 ```
 
+#### keepProtocol `(default: true)`
+
+```typescript
+urlNormalize("https://example.com")
+// -> "https://example.com"
+
+urlNormalize("https://example.com", { keepProtocol: false })
+// -> "example.com"
+
+urlNormalize("https://example.com/foo?bar=baz", { keepProtocol: false })
+// -> "example.com/foo?bar=baz"
+```
+
 #### keepWWW `(default: false)`
 
 ```typescript
+urlNormalize("www.example.com")
+// -> "https://example.com"
+
 urlNormalize("www.example.com", { keepWWW: true })
 // -> "https://www.example.com"
 ```
@@ -161,6 +177,16 @@ urlNormalize("ftps://example.com", { allowCustomProtocol: true })
 
 urlNormalize("tg://example.com", { allowCustomProtocol: true })
 // -> "tg://example.com"
+```
+
+#### forceProtocol
+
+```typescript
+urlNormalize("https://example.com", { forceProtocol: "sftp" })
+// -> "sftp://example.com"
+
+urlNormalize("tg://example.com", { forceProtocol: "we" })
+// -> "we://example.com"
 ```
 
 ### Advanced

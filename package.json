@@ -1,6 +1,6 @@
 {
   "name": "url-normalize",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "author": "Vlad Pronsky <v.pronsky@gmail.com>",
   "repository": "vladkens/url-normalize",
   "description": "Normalize URLs to a standardized form by removing unnecessary characters, decoding encoded characters, removing default index pages, removing trailing slashes, and more.",
@@ -26,6 +26,7 @@
     "main": "dist/main.cjs",
     "exports": "dist/main.mjs"
   },
+  "types": "./dist/main.d.ts",
   "exports": {
     "types": "./dist/main.d.ts",
     "import": "./dist/main.mjs",

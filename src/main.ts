@@ -1,10 +1,12 @@
 export type Options = {
   allowCustomProtocol?: boolean
   defaultProtocol?: string
+  forceProtocol?: string
   keepAuth?: boolean
   keepDirectoryIndex?: boolean
   keepHash?: boolean
   keepPort?: boolean // default port always removed
+  keepProtocol?: boolean
   keepQueryParams?: boolean
   keepTextFragment?: boolean
   keepWWW?: boolean
@@ -18,6 +20,7 @@ const DefaultOptions: Options = {
   keepDirectoryIndex: true,
   keepHash: true,
   keepPort: true,
+  keepProtocol: true,
   keepQueryParams: true,
   keepTextFragment: false,
   keepWWW: false,
@@ -46,7 +49,8 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
 
   if (
     !options.allowCustomProtocol &&
-    !["http:", "https:", `${options.defaultProtocol}:`].includes(obj.protocol)
+    !["http:", "https:", `${options.defaultProtocol}:`].includes(obj.protocol) &&
+    !options.forceProtocol // URL in nodejs not allow to change protocol, so do it on the end
   ) {
     throw new Error("Invalid protocol")
   }
@@ -105,12 +109,24 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   let res = obj.toString()
   if (res.endsWith("/") && !res.endsWith("/#/")) res = res.slice(0, -1)
 
+  let protocol = obj.protocol
+  if (options.forceProtocol) {
+    const regex = new RegExp(`^${obj.protocol}//`, "i")
+    res = res.replace(regex, `${options.forceProtocol}://`)
+    protocol = `${options.forceProtocol}:`
+  }
+
+  if (!options.keepProtocol) {
+    const regex = new RegExp(`^${protocol}//`, "i")
+    res = res.replace(regex, "")
+  }
+
   return res
 }
 
-export const urlNormalize = (url: string, options?: Options): string | null => {
+export const urlNormalize = (url?: string | null, options?: Options): string | null => {
   try {
-    return urlNormalizeOrFail(url, options)
+    return urlNormalizeOrFail(url ?? "", options)
   } catch {
     return null
   }
@@ -122,9 +138,9 @@ export const extractDomainOrFail = (url: string): string => {
   return obj.hostname
 }
 
-export const extractDomain = (url: string): string | null => {
+export const extractDomain = (url?: string | null): string | null => {
   try {
-    return extractDomainOrFail(url)
+    return extractDomainOrFail(url ?? "")
   } catch {
     return null
   }

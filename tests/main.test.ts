@@ -143,6 +143,23 @@ test("should allow custom options", () => {
   t(`abc://www.example.com/foo/bar`, null, { allowCustomProtocol: false })
   t(`abc://www.example.com/foo/bar`, null, { allowCustomProtocol: false })
 
+  // keep protocol
+  t("https://example.com", "https://example.com", { keepProtocol: true })
+  t("https://example.com", "example.com", { keepProtocol: false })
+  t("https://example.com/abc", "example.com/abc", { keepProtocol: false })
+  t("https://example.com:80/abc", "example.com:80/abc", { keepProtocol: false })
+  t("https://example.com/foo?bar=baz", "example.com/foo?bar=baz", { keepProtocol: false })
+  t("abc://example.com:80/abc", "example.com:80/abc", { keepProtocol: false, allowCustomProtocol: true })
+  t("abc://example.com:80/abc", null, { keepProtocol: false, allowCustomProtocol: false })
+
+  // force protocol
+  t("https://example.com", "http://example.com", { forceProtocol: "http" })
+  t("https://example.com", "https://example.com", { forceProtocol: "https" })
+  t("https://example.com", "abc://example.com", { forceProtocol: "abc" })
+  t("https://example.com", "example.com", { forceProtocol: "abc", keepProtocol: false })
+  t("https://example.com", "sftp://example.com", { forceProtocol: "sftp" })
+  t("tg://example.com", "we://example.com", { forceProtocol: "we" })
+
   // keep www
   t("www.example.com", "https://www.example.com", { keepWWW: true })
   t("www.example.com", "https://example.com", { keepWWW: false })
