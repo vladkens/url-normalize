@@ -1,3 +1,5 @@
+import { toUnicode } from "punycode"
+
 export type Options = {
   allowCustomProtocol?: boolean
   defaultProtocol?: string
@@ -11,6 +13,7 @@ export type Options = {
   keepTextFragment?: boolean
   keepWWW?: boolean
   sortQueryParams?: boolean
+  unicodeDomain?: boolean
 }
 
 const DefaultOptions: Options = {
@@ -25,6 +28,7 @@ const DefaultOptions: Options = {
   keepTextFragment: false,
   keepWWW: false,
   sortQueryParams: true,
+  unicodeDomain: false,
 }
 
 const canFail = (fn: () => void) => {
@@ -119,6 +123,11 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   if (!options.keepProtocol) {
     const regex = new RegExp(`^${protocol}//`, "i")
     res = res.replace(regex, "")
+  }
+
+  if (options.unicodeDomain) {
+    const hostname = toUnicode(obj.hostname)
+    res = res.replace(obj.hostname, hostname)
   }
 
   return res

@@ -50,6 +50,9 @@ test("should normalize domain", () => {
   t("www.com", "https://www.com")
   t("www.www.example.com", "https://www.www.example.com")
 
+  t("👻💥.ws", "https://xn--9q8huc.ws")
+  t("xn--9q8huc.ws", "https://xn--9q8huc.ws")
+
   t("êxample.com", "https://xn--xample-hva.com")
   t("ebаy.com", "https://xn--eby-7cd.com")
   t("myfictionαlbank.com", "https://xn--myfictionlbank-o9j.com")
@@ -59,6 +62,10 @@ test("should normalize domain", () => {
   t("παράδειγμα.ελ", "https://xn--hxajbheg2az3al.xn--qxam")
   t("مثال.مصر", "https://xn--mgbh0fb.xn--wgbh1c")
   t("उदाहरण.भारत", "https://xn--p1b6ci4b4b3a.xn--h2brj9c")
+
+  t("xn--9q8huc.ws", "https://👻💥.ws", { unicodeDomain: true })
+  t("https://xn--mgbh0fb.xn--wgbh1c", "https://مثال.مصر", { unicodeDomain: true })
+  t("https://xn--eby-7cd.com", "https://ebаy.com", { unicodeDomain: true })
 })
 
 test("should normalize path", () => {

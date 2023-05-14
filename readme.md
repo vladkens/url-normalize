@@ -189,6 +189,19 @@ urlNormalize("tg://example.com", { forceProtocol: "we" })
 // -> "we://example.com"
 ```
 
+#### unicodeDomain (default: false)
+
+```typescript
+urlNormalize("👻💥.ws")
+// -> "https://xn--9q8huc.ws"
+
+urlNormalize("👻💥.ws", { unicodeDomain: true })
+// -> "https://👻💥.ws"
+
+urlNormalize("https://xn--9q8huc.ws", { unicodeDomain: true })
+// -> "https://👻💥.ws"
+```
+
 ### Advanced
 
 #### urlNormalizeOrFail
