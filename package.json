@@ -1,15 +1,16 @@
 {
   "type": "module",
   "name": "url-normalize",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": "Vlad Pronsky <v.pronsky@gmail.com>",
   "repository": "vladkens/url-normalize",
-  "description": "Normalize URLs to a standardized form by removing unnecessary characters, decoding encoded characters, removing default index pages, removing trailing slashes, and more.",
+  "description": "Normalize URLs to a standardized form. HTTPS by default, flexible configuration, custom protocols, domain extraction, humazing URL, and punycode support. Both CJS & ESM modules available.",
   "license": "MIT",
   "keywords": [
     "canonical",
     "domain",
     "extract",
+    "humanization",
     "humanize",
     "normalization",
     "normalize",
@@ -17,8 +18,6 @@
     "querystrings",
     "unicode",
     "uri",
-    "url-normalization",
-    "url-normalize",
     "url"
   ],
   "files": [

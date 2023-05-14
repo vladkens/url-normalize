@@ -1,6 +1,6 @@
 import { test } from "uvu"
 import { equal, not, throws } from "uvu/assert"
-import { Options, extractDomain, extractDomainOrFail, urlNormalize, urlNormalizeOrFail } from "../src/main"
+import { Options, extractDomain, extractDomainOrFail, humanizeUrl, urlNormalize, urlNormalizeOrFail } from "../src/main"
 
 const t = (url: string, exp: string | null, opts?: Options) => {
   return equal(urlNormalize(url, opts), exp, `FAIL: ${url} -> ${exp}`)
@@ -225,7 +225,7 @@ test("should allow custom options", () => {
 
   // filter query params
   t("example.com/?b=2&a=1", "https://example.com/?a=1", { filterQueryParams: (k, v) => k === "a" })
-  t("example.com/?c=3&b=2&a=1", "https://example.com/?a=1&c=3", { filterQueryParams: (k, v) => k === "a" || v == "3" })
+  t("example.com/?c=3&b=2&a=1", "https://example.com/?a=1&c=3", { filterQueryParams: (k, v) => k === "a" || v === "3" })
 })
 
 test("custom protocol", () => {
@@ -271,6 +271,7 @@ test("unhappy path", () => {
 
   // https://en.wikipedia.org/wiki/List_of_URI_schemes
   t("data:", null)
+  t("data:asdasdasdasdasd", null)
   t("tel:1234", null)
   t("mailto:user@example.com", null)
 
@@ -311,6 +312,22 @@ test("should throws on extract domain fail", () => {
 
   not.throws(() => extractDomainOrFail("example.com"))
   not.throws(() => extractDomainOrFail("example.com:80"))
+})
+
+test("should humanizeUrl", () => {
+  const t = (url: string, exp: string | null) => equal(humanizeUrl(url), exp, `FAIL: ${url} -> ${exp}`)
+
+  t("https://example.com", "example.com")
+  t("https://www.example.com/", "example.com")
+  t("https://example.com/?", "example.com")
+  t("https://example.com:80", "example.com:80")
+  t("https://user:@example.com", "example.com")
+  t("https://example.com?", "example.com")
+  t("https://example.com#", "example.com")
+  t("https://example.com/foo", "example.com/foo")
+  t("https://example.com/foo/?b=2&a=1", "example.com/foo/?a=1&b=2")
+  t("https://example.com/foo/#tag", "example.com/foo/#tag")
+  t("example.com:443/foo/index.html?a=2&a=1#tag", "example.com/foo/index.html?a=2&a=1#tag")
 })
 
 test.run()

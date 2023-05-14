@@ -18,18 +18,12 @@
   </a>
 </div>
 
-### Features
-
-- HTTPS by default
-- Flexible configuration
-- Custom protocols (e.g. tg://)
-- Domain extraction
-- Support both CJS & ESM modules
+**Normalize URLs** to a standardized form. **HTTPS** by default, flexible configuration, custom protocols, **domain extraction**, **humazing URL**, and **punycode** support. Both CJS & ESM modules available.
 
 ### Install
 
 ```sh
-yarn add url-normalize
+npm install url-normalize
 ```
 
 ### Usage
@@ -45,6 +39,15 @@ urlNormalize("//www.example.com:443/../foo/bar?b=2&a=1#tag")
 
 // all invalid urls is null
 urlNormalize("example")
+// -> null
+
+urlNormalize("data:content/type;base64,abc")
+// -> null
+
+urlNormalize("tel:+123456789")
+// -> null
+
+urlNormalize("mailto:user@example.com")
 // -> null
 ```
 
@@ -146,7 +149,7 @@ urlNormalize("example.com/?b=2&b=1", { sortQueryParams: false })
 ### filterQueryParams
 
 ```typescript
-urlNormalize("example.com/?c=3&b=2&a=1", { filterQueryParams: (k, v) => k === "a" || v == "3" })
+urlNormalize("example.com/?c=3&b=2&a=1", { filterQueryParams: (k, v) => k === "a" || v === "3" })
 // -> https://example.com/?a=1&c=3
 ```
 
@@ -250,6 +253,15 @@ const urlNormalize = createUrlNormalize({
 
 urlNormalize("example.com/foo#tag")
 // -> "http://example.com/foo"
+```
+
+#### humanizeUrl
+
+```typescript
+import { humanizeUrl } from "url-normalize"
+
+humanizeUrl("https://example.com/foo/bar")
+// -> example.com/foo/bar
 ```
 
 ### Similar projects

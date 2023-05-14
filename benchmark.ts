@@ -1,6 +1,4 @@
-import { urlNormalize } from "./src/main"
-
-// node --loader tsm --no-warnings bench.ts
+import { humanizeUrl, urlNormalize } from "./src/main"
 
 const bench = (name: string, count: number, fn: () => void) => {
   const st = Date.now()
@@ -20,6 +18,10 @@ const main = () => {
 
   bench("urlNormalize – replace protocol", 1e5, () => {
     urlNormalize("www.example.com/foo//bar/../baz?b=2&a=1#tag", { forceProtocol: "sftp" })
+  })
+
+  bench("humanizeUrl – simple", 1e5, () => {
+    humanizeUrl("https://www.google.com")
   })
 }
 

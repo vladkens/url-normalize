@@ -169,3 +169,5 @@ export const createUrlNormalize = (baseOptions: Options) => {
     return urlNormalize(url, { ...baseOptions, ...opts })
   }
 }
+
+export const humanizeUrl = createUrlNormalize({ keepProtocol: false })
