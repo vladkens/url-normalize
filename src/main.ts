@@ -1,41 +1,43 @@
 import { toUnicode } from "punycode"
 
 export type Options = {
-  allowCustomProtocol?: boolean
+  auth?: boolean
+  customProtocol?: boolean
   defaultProtocol?: string
-  filterQueryParams?: (key: string, value: string) => boolean
+  filterSearch?: (key: string, value: string) => boolean
   forceProtocol?: string
-  keepAuth?: boolean
-  keepDirectoryIndex?: boolean
-  keepHash?: boolean
-  keepPort?: boolean // default port always removed
-  keepProtocol?: boolean
-  keepQueryParams?: boolean
-  keepTextFragment?: boolean
-  keepWWW?: boolean
-  sortQueryParams?: boolean
-  unicodeDomain?: boolean
+  fragment?: boolean
+  index?: boolean
+  port?: boolean // default port always removed
+  protocol?: boolean
+  search?: boolean
+  sortSearch?: boolean
+  textFragment?: boolean
+  unicode?: boolean
+  www?: boolean
 }
 
 const DefaultOptions: Options = {
-  allowCustomProtocol: false,
+  auth: false,
+  customProtocol: false,
   defaultProtocol: "https",
-  keepAuth: false,
-  keepDirectoryIndex: true,
-  keepHash: true,
-  keepPort: true,
-  keepProtocol: true,
-  keepQueryParams: true,
-  keepTextFragment: false,
-  keepWWW: false,
-  sortQueryParams: true,
-  unicodeDomain: false,
+  fragment: true,
+  index: true,
+  port: true,
+  protocol: true,
+  search: true,
+  sortSearch: true,
+  textFragment: false,
+  unicode: false,
+  www: false,
 }
 
-const canFail = (fn: () => void) => {
+const canFail = <T>(fn: () => T): T | null => {
   try {
-    fn()
-  } catch {}
+    return fn()
+  } catch {
+    return null
+  }
 }
 
 export const urlNormalizeOrFail = (url: string, options?: Options): string => {
@@ -53,7 +55,7 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   const obj = new URL(url)
 
   if (
-    !options.allowCustomProtocol &&
+    !options.customProtocol &&
     !["http:", "https:", `${options.defaultProtocol}:`].includes(obj.protocol) &&
     !options.forceProtocol // URL in nodejs not allow to change protocol, so do it on the end
   ) {
@@ -63,7 +65,7 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   obj.hostname = obj.hostname.replace(/^\.*/, "") // ".example.com" -> "example.com"
   obj.hostname = obj.hostname.replace(/\.*$/, "") // "example.com." -> "example.com
 
-  if (!options.keepWWW) {
+  if (!options.www) {
     const parts = obj.hostname.split(".")
     if (parts.length === 3 && parts[0] === "www") obj.hostname = parts.slice(1).join(".")
   }
@@ -73,48 +75,48 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   const parts = obj.hostname.split(".").filter((x) => x !== "")
   if (parts.length < 2) throw new Error("Invalid domain")
 
-  if (!options.keepAuth) {
+  if (!options.auth) {
     obj.username = ""
     obj.password = ""
   }
 
-  if (!options.keepPort) {
+  if (!options.port) {
     obj.port = ""
   }
 
   canFail(() => (obj.pathname = decodeURI(obj.pathname)))
-  if (!options.keepDirectoryIndex) {
+  if (!options.index) {
     obj.pathname = obj.pathname.replace(/\/index\.[a-z0-9]+$/i, "/") // remove "index.html"
   }
 
   // remove multiple slash, but not ://
   obj.pathname = obj.pathname.replace(/(^|[^:])\/{2,}(?!\/)/g, "$1/")
 
-  if (!options.keepQueryParams) {
+  if (!options.search) {
     obj.search = ""
   } else {
     obj.search = obj.search.replace(/&$/, "") // remove last "&"
     obj.search = obj.search.replace(/&{2,}/, "&") // replace multiple "&"
     obj.search = obj.search.replace(/%20/g, "+") // replace "%20" to "+"
 
-    if (options.filterQueryParams) {
+    if (options.filterSearch) {
       const params = new URLSearchParams(obj.search)
       for (const [key, value] of params.entries()) {
-        if (!options.filterQueryParams(key, value)) params.delete(key)
+        if (!options.filterSearch(key, value)) params.delete(key)
       }
       obj.search = params.toString()
     }
 
-    if (options.sortQueryParams) {
+    if (options.sortSearch) {
       obj.searchParams.sort()
       canFail(() => (obj.search = decodeURIComponent(obj.searchParams.toString())))
     }
   }
 
-  if (!options.keepHash) {
+  if (!options.fragment) {
     obj.hash = ""
   } else {
-    if (!options.keepTextFragment) {
+    if (!options.textFragment) {
       obj.hash = obj.hash.replace(/#?:~:text.*?$/i, "")
     }
   }
@@ -129,12 +131,12 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
     protocol = `${options.forceProtocol}:`
   }
 
-  if (!options.keepProtocol) {
+  if (!options.protocol) {
     const regex = new RegExp(`^${protocol}//`, "i")
     res = res.replace(regex, "")
   }
 
-  if (options.unicodeDomain) {
+  if (options.unicode) {
     const hostname = toUnicode(obj.hostname)
     res = res.replace(obj.hostname, hostname)
   }
@@ -143,10 +145,12 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
 }
 
 export const urlNormalize = (url?: string | null, options?: Options): string | null => {
-  try {
-    return urlNormalizeOrFail(url ?? "", options)
-  } catch {
-    return null
+  return canFail(() => urlNormalizeOrFail(url ?? "", options))
+}
+
+export const createUrlNormalize = (baseOptions: Options) => {
+  return (url: string, opts?: Options) => {
+    return urlNormalize(url, { ...baseOptions, ...opts })
   }
 }
 
@@ -157,17 +161,13 @@ export const extractDomainOrFail = (url: string): string => {
 }
 
 export const extractDomain = (url?: string | null): string | null => {
-  try {
-    return extractDomainOrFail(url ?? "")
-  } catch {
-    return null
-  }
+  return canFail(() => extractDomainOrFail(url ?? ""))
 }
 
-export const createUrlNormalize = (baseOptions: Options) => {
-  return (url: string, opts?: Options) => {
-    return urlNormalize(url, { ...baseOptions, ...opts })
-  }
+export const humanizeUrlOrFail = (url: string, options?: Options): string => {
+  return urlNormalizeOrFail(url, { ...options, protocol: false })
 }
 
-export const humanizeUrl = createUrlNormalize({ keepProtocol: false })
+export const humanizeUrl = (url?: string | null, options?: Options): string | null => {
+  return canFail(() => humanizeUrlOrFail(url ?? "", options))
+}
