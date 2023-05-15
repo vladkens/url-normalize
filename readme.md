@@ -69,111 +69,111 @@ urlNormalize("https://example.com", { defaultProtocol: "http" })
 // -> "https://example.com"
 ```
 
-#### keepProtocol `(default: true)`
+#### protocol `(default: true)`
 
 ```typescript
 urlNormalize("https://example.com")
 // -> "https://example.com"
 
-urlNormalize("https://example.com", { keepProtocol: false })
+urlNormalize("https://example.com", { protocol: false })
 // -> "example.com"
 
-urlNormalize("https://example.com/foo?bar=baz", { keepProtocol: false })
+urlNormalize("https://example.com/foo?bar=baz", { protocol: false })
 // -> "example.com/foo?bar=baz"
 ```
 
-#### keepWWW `(default: false)`
+#### www `(default: false)`
 
 ```typescript
 urlNormalize("www.example.com")
 // -> "https://example.com"
 
-urlNormalize("www.example.com", { keepWWW: true })
+urlNormalize("www.example.com", { www: true })
 // -> "https://www.example.com"
 ```
 
-#### keepAuth `(default: false)`
+#### auth `(default: false)`
 
 ```typescript
 urlNormalize("https://user:pass@example.com")
 // -> "https://example.com"
 
-urlNormalize("https://user:pass@example.com", { keepAuth: true })
+urlNormalize("https://user:pass@example.com", { auth: true })
 // -> "https://user:pass@example.com"
 ```
 
-#### keepPort `(default: false)`
+#### port `(default: false)`
 
 ```typescript
 urlNormalize("https://example.com:8080")
 // -> "https://example.com"
 
-urlNormalize("https://example.com:8080", { keepPort: true })
+urlNormalize("https://example.com:8080", { port: true })
 // -> "https://example.com:8080"
 
 // BUT for HTTP - 80 & HTTPS - 443 always without port
-urlNormalize("https://example.com:443", { keepPort: true })
+urlNormalize("https://example.com:443", { port: true })
 // -> "https://example.com"
 ```
 
-#### keepDirectoryIndex `(default: true)`
+#### index `(default: true)`
 
 ```typescript
 urlNormalize("example.com/index.html")
 // -> "https://example.com/index.html"
 
-urlNormalize("example.com/index.html", { keepDirectoryIndex: false })
+urlNormalize("example.com/index.html", { index: false })
 // -> "https://example.com"
 ```
 
-#### keepQueryParams `(default: true)`
+#### search `(default: true)`
 
 ```typescript
 urlNormalize("example.com/?a=1&b=2")
 // -> "https://example.com/?a=1&b=2"
 
-urlNormalize("example.com/?a=1&b=2", { keepQueryParams: false })
+urlNormalize("example.com/?a=1&b=2", { search: false })
 // -> "https://example.com"
 ```
 
-#### sortQueryParams `(default: true)`
+#### sortSearch `(default: true)`
 
 ```typescript
 urlNormalize("example.com/?b=2&b=1")
 // -> "https://example.com/?a=1&b=2"
 
-urlNormalize("example.com/?b=2&b=1", { sortQueryParams: false })
+urlNormalize("example.com/?b=2&b=1", { sortSearch: false })
 // -> "https://example.com/?b=2&b=1"
 ```
 
-### filterQueryParams
+### filterSearch
 
 ```typescript
-urlNormalize("example.com/?c=3&b=2&a=1", { filterQueryParams: (k, v) => k === "a" || v === "3" })
+urlNormalize("example.com/?c=3&b=2&a=1", { filterSearch: (k, v) => k === "a" || v === "3" })
 // -> https://example.com/?a=1&c=3
 ```
 
-#### keepHash `(default: true)`
+#### fragment `(default: true)`
 
 ```typescript
 urlNormalize("example.com/#foo")
 // -> "https://example.com/#foo"
 
-urlNormalize("example.com/?b=2&b=1", { keepHash: false })
+urlNormalize("example.com/?b=2&b=1", { fragment: false })
 // -> "https://example.com"
 ```
 
-### keepTextFragment `(default: false)`
+### textFragment `(default: false)`
 
 ```typescript
 urlNormalize("example.com/#:~:text=hello")
 // -> "https://example.com"
 
-urlNormalize("example.com/?b=2&b=1", { keepTextFragment: true })
+urlNormalize("example.com/?b=2&b=1", { textFragment: true })
 // -> "https://example.com/#:~:text=hello"
 ```
 
-### allowCustomProtocol `(default: false)`
+### customProtocol `(default: false)`
 
 ```typescript
 urlNormalize("ftps://example.com")
@@ -182,10 +182,10 @@ urlNormalize("ftps://example.com")
 urlNormalize("tg://example.com")
 // -> null
 
-urlNormalize("ftps://example.com", { allowCustomProtocol: true })
+urlNormalize("ftps://example.com", { customProtocol: true })
 // -> "ftps://example.com"
 
-urlNormalize("tg://example.com", { allowCustomProtocol: true })
+urlNormalize("tg://example.com", { customProtocol: true })
 // -> "tg://example.com"
 ```
 
@@ -199,47 +199,20 @@ urlNormalize("tg://example.com", { forceProtocol: "we" })
 // -> "we://example.com"
 ```
 
-#### unicodeDomain `(default: false)`
+#### unicode `(default: false)`
 
 ```typescript
 urlNormalize("👻💥.ws")
 // -> "https://xn--9q8huc.ws"
 
-urlNormalize("👻💥.ws", { unicodeDomain: true })
+urlNormalize("👻💥.ws", { unicode: true })
 // -> "https://👻💥.ws"
 
-urlNormalize("https://xn--9q8huc.ws", { unicodeDomain: true })
+urlNormalize("https://xn--9q8huc.ws", { unicode: true })
 // -> "https://👻💥.ws"
 ```
 
 ### Advanced
-
-#### urlNormalizeOrFail
-
-```typescript
-import { urlNormalize, urlNormalizeOrFail } from "url-normalize"
-
-urlNormalize("invalid")
-// -> null
-
-urlNormalizeOrFail("invalid")
-// throws Error
-```
-
-#### extractDomain
-
-```typescript
-import { extractDomain, extractDomainOrFail } from "url-normalize"
-
-extractDomain("https://example.com:8080/?a=1&b=2#tag")
-// -> "example.com"
-
-extractDomain("invalid")
-// -> null
-
-extractDomainOrFail("invalid")
-// throws Error
-```
 
 #### createUrlNormalize
 
@@ -255,13 +228,46 @@ urlNormalize("example.com/foo#tag")
 // -> "http://example.com/foo"
 ```
 
+#### urlNormalizeOrFail
+
+```typescript
+import { urlNormalize, urlNormalizeOrFail } from "url-normalize"
+
+urlNormalize("invalid")
+// -> null
+
+urlNormalizeOrFail("invalid")
+// throws Exception
+```
+
+#### extractDomain
+
+```typescript
+import { extractDomain, extractDomainOrFail } from "url-normalize"
+
+extractDomain("https://example.com:8080/?a=1&b=2#tag")
+// -> "example.com"
+
+extractDomain("invalid")
+// -> null
+
+extractDomainOrFail("invalid")
+// throws Exception
+```
+
 #### humanizeUrl
 
 ```typescript
-import { humanizeUrl } from "url-normalize"
+import { humanizeUrl, humanizeUrlOrFail } from "url-normalize"
 
 humanizeUrl("https://example.com/foo/bar")
 // -> example.com/foo/bar
+
+humanizeUrl("invalid")
+// -> null
+
+humanizeUrlOrFail("invalid")
+// throws Exception
 ```
 
 ### Similar projects
