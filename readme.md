@@ -20,13 +20,13 @@
 
 **Normalize URLs** to a standardized form. **HTTPS** by default, flexible configuration, custom protocols, **domain extraction**, **humazing URL**, and **punycode** support. Both CJS & ESM modules available.
 
-### Install
+## Install
 
 ```sh
-npm install url-normalize
+yarn add url-normalize
 ```
 
-### Usage
+## Usage
 
 ```typescript
 import { urlNormalize } from "url-normalize"
@@ -51,9 +51,9 @@ urlNormalize("mailto:user@example.com")
 // -> null
 ```
 
-### Configuration
+## Configuration
 
-#### defaultProtocol `(default: https)`
+### defaultProtocol `(default: https)`
 
 Default supported protocols are: `http`, `https`
 
@@ -69,7 +69,7 @@ urlNormalize("https://example.com", { defaultProtocol: "http" })
 // -> "https://example.com"
 ```
 
-#### protocol `(default: true)`
+### protocol `(default: true)`
 
 ```typescript
 urlNormalize("https://example.com")
@@ -82,7 +82,7 @@ urlNormalize("https://example.com/foo?bar=baz", { protocol: false })
 // -> "example.com/foo?bar=baz"
 ```
 
-#### www `(default: false)`
+### www `(default: false)`
 
 ```typescript
 urlNormalize("www.example.com")
@@ -92,7 +92,7 @@ urlNormalize("www.example.com", { www: true })
 // -> "https://www.example.com"
 ```
 
-#### auth `(default: false)`
+### auth `(default: false)`
 
 ```typescript
 urlNormalize("https://user:pass@example.com")
@@ -102,7 +102,7 @@ urlNormalize("https://user:pass@example.com", { auth: true })
 // -> "https://user:pass@example.com"
 ```
 
-#### port `(default: false)`
+### port `(default: false)`
 
 ```typescript
 urlNormalize("https://example.com:8080")
@@ -116,7 +116,7 @@ urlNormalize("https://example.com:443", { port: true })
 // -> "https://example.com"
 ```
 
-#### index `(default: true)`
+### index `(default: true)`
 
 ```typescript
 urlNormalize("example.com/index.html")
@@ -126,7 +126,7 @@ urlNormalize("example.com/index.html", { index: false })
 // -> "https://example.com"
 ```
 
-#### search `(default: true)`
+### search `(default: true)`
 
 ```typescript
 urlNormalize("example.com/?a=1&b=2")
@@ -136,7 +136,7 @@ urlNormalize("example.com/?a=1&b=2", { search: false })
 // -> "https://example.com"
 ```
 
-#### sortSearch `(default: true)`
+### sortSearch `(default: true)`
 
 ```typescript
 urlNormalize("example.com/?b=2&b=1")
@@ -153,7 +153,7 @@ urlNormalize("example.com/?c=3&b=2&a=1", { filterSearch: (k, v) => k === "a" || 
 // -> https://example.com/?a=1&c=3
 ```
 
-#### fragment `(default: true)`
+### fragment `(default: true)`
 
 ```typescript
 urlNormalize("example.com/#foo")
@@ -189,7 +189,7 @@ urlNormalize("tg://example.com", { customProtocol: true })
 // -> "tg://example.com"
 ```
 
-#### forceProtocol
+### forceProtocol
 
 ```typescript
 urlNormalize("https://example.com", { forceProtocol: "sftp" })
@@ -199,7 +199,7 @@ urlNormalize("tg://example.com", { forceProtocol: "we" })
 // -> "we://example.com"
 ```
 
-#### unicode `(default: false)`
+### unicode `(default: false)`
 
 ```typescript
 urlNormalize("👻💥.ws")
@@ -212,9 +212,9 @@ urlNormalize("https://xn--9q8huc.ws", { unicode: true })
 // -> "https://👻💥.ws"
 ```
 
-### Advanced
+## Advanced
 
-#### createUrlNormalize
+### createUrlNormalize
 
 ```typescript
 import { createUrlNormalize } from "url-normalize"
@@ -228,7 +228,7 @@ urlNormalize("example.com/foo#tag")
 // -> "http://example.com/foo"
 ```
 
-#### urlNormalizeOrFail
+### urlNormalizeOrFail
 
 ```typescript
 import { urlNormalize, urlNormalizeOrFail } from "url-normalize"
@@ -240,7 +240,7 @@ urlNormalizeOrFail("invalid")
 // throws Exception
 ```
 
-#### extractDomain
+### extractDomain
 
 ```typescript
 import { extractDomain, extractDomainOrFail } from "url-normalize"
@@ -255,7 +255,7 @@ extractDomainOrFail("invalid")
 // throws Exception
 ```
 
-#### humanizeUrl
+### humanizeUrl
 
 ```typescript
 import { humanizeUrl, humanizeUrlOrFail } from "url-normalize"
@@ -270,6 +270,6 @@ humanizeUrlOrFail("invalid")
 // throws Exception
 ```
 
-### Similar projects
+## Similar projects
 
 - [sindresorhus/normalize-url](https://github.com/sindresorhus/normalize-url)
