@@ -221,7 +221,7 @@ import { createUrlNormalize } from "url-normalize"
 
 const urlNormalize = createUrlNormalize({
   defaultProtocol: "http",
-  keepHash: false,
+  fragment: false,
 })
 
 urlNormalize("example.com/foo#tag")

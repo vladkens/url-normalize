@@ -63,9 +63,9 @@ test("should normalize domain", () => {
   t("مثال.مصر", "https://xn--mgbh0fb.xn--wgbh1c")
   t("उदाहरण.भारत", "https://xn--p1b6ci4b4b3a.xn--h2brj9c")
 
-  t("xn--9q8huc.ws", "https://👻💥.ws", { unicodeDomain: true })
-  t("https://xn--mgbh0fb.xn--wgbh1c", "https://مثال.مصر", { unicodeDomain: true })
-  t("https://xn--eby-7cd.com", "https://ebаy.com", { unicodeDomain: true })
+  t("xn--9q8huc.ws", "https://👻💥.ws", { unicode: true })
+  t("https://xn--mgbh0fb.xn--wgbh1c", "https://مثال.مصر", { unicode: true })
+  t("https://xn--eby-7cd.com", "https://ebаy.com", { unicode: true })
 })
 
 test("should normalize path", () => {
@@ -141,105 +141,103 @@ test("should allow custom options", () => {
   t("http://example.com", "http://example.com", { defaultProtocol: "ftp" })
   t("abc://example.com", null, { defaultProtocol: "http" })
 
-  // allow custom protocol
-  t(`abc://example.com`, `abc://example.com`, { allowCustomProtocol: true })
-  t(`abc://example.com`, null, { allowCustomProtocol: false })
-  t(`abc://www.example.com/`, `abc://example.com`, { allowCustomProtocol: true })
-  t(`abc://www.example.com/foo/bar`, `abc://example.com/foo/bar`, { allowCustomProtocol: true })
-  t(`abc://www.example.com/foo/bar`, null, { allowCustomProtocol: false })
-  t(`abc://www.example.com/foo/bar`, null, { allowCustomProtocol: false })
-  t(`abc://www.example.com/foo/bar`, null, { allowCustomProtocol: false })
+  // customProtocol
+  t(`abc://example.com`, `abc://example.com`, { customProtocol: true })
+  t(`abc://example.com`, null, { customProtocol: false })
+  t(`abc://www.example.com/`, `abc://example.com`, { customProtocol: true })
+  t(`abc://www.example.com/foo/bar`, `abc://example.com/foo/bar`, { customProtocol: true })
+  t(`abc://www.example.com/foo/bar`, null, { customProtocol: false })
+  t(`abc://www.example.com/foo/bar`, null, { customProtocol: false })
+  t(`abc://www.example.com/foo/bar`, null, { customProtocol: false })
 
-  // keep protocol
-  t("https://example.com", "https://example.com", { keepProtocol: true })
-  t("https://example.com", "example.com", { keepProtocol: false })
-  t("https://example.com/abc", "example.com/abc", { keepProtocol: false })
-  t("https://example.com:80/abc", "example.com:80/abc", { keepProtocol: false })
-  t("https://example.com/foo?bar=baz", "example.com/foo?bar=baz", { keepProtocol: false })
-  t("abc://example.com:80/abc", "example.com:80/abc", { keepProtocol: false, allowCustomProtocol: true })
-  t("abc://example.com:80/abc", null, { keepProtocol: false, allowCustomProtocol: false })
+  // protocol
+  t("https://example.com", "https://example.com", { protocol: true })
+  t("https://example.com", "example.com", { protocol: false })
+  t("https://example.com/abc", "example.com/abc", { protocol: false })
+  t("https://example.com:80/abc", "example.com:80/abc", { protocol: false })
+  t("https://example.com/foo?bar=baz", "example.com/foo?bar=baz", { protocol: false })
+  t("abc://example.com:80/abc", "example.com:80/abc", { protocol: false, customProtocol: true })
+  t("abc://example.com:80/abc", null, { protocol: false, customProtocol: false })
 
-  // force protocol
+  // forceProtocol
   t("https://example.com", "http://example.com", { forceProtocol: "http" })
   t("https://example.com", "https://example.com", { forceProtocol: "https" })
   t("https://example.com", "abc://example.com", { forceProtocol: "abc" })
-  t("https://example.com", "example.com", { forceProtocol: "abc", keepProtocol: false })
+  t("https://example.com", "example.com", { forceProtocol: "abc", protocol: false })
   t("https://example.com", "sftp://example.com", { forceProtocol: "sftp" })
   t("tg://example.com", "we://example.com", { forceProtocol: "we" })
 
-  // keep www
-  t("www.example.com", "https://www.example.com", { keepWWW: true })
-  t("www.example.com", "https://example.com", { keepWWW: false })
-  t("http://www.example.com", "http://www.example.com", { keepWWW: true })
+  // www
+  t("www.example.com", "https://www.example.com", { www: true })
+  t("www.example.com", "https://example.com", { www: false })
+  t("http://www.example.com", "http://www.example.com", { www: true })
 
-  // keep auth
-  t("https://user:pass@example.com", "https://example.com", { keepAuth: false })
-  t("https://user:pass@example.com", "https://user:pass@example.com", { keepAuth: true })
-  t("https://:pass@example.com", "https://:pass@example.com", { keepAuth: true })
-  t("https://user:@example.com", "https://user@example.com", { keepAuth: true })
-  t("https://:@example.com", "https://example.com", { keepAuth: true })
-  t("http://user:@example.com", "http://user@example.com", { keepAuth: true })
+  // auth
+  t("https://user:pass@example.com", "https://example.com", { auth: false })
+  t("https://user:pass@example.com", "https://user:pass@example.com", { auth: true })
+  t("https://:pass@example.com", "https://:pass@example.com", { auth: true })
+  t("https://user:@example.com", "https://user@example.com", { auth: true })
+  t("https://:@example.com", "https://example.com", { auth: true })
+  t("http://user:@example.com", "http://user@example.com", { auth: true })
 
-  // keepPort
-  t("http://example.com:80", "http://example.com", { keepPort: false })
-  t("http://example.com:80", "http://example.com", { keepPort: true })
-  t("https://example.com:443", "https://example.com", { keepPort: false })
-  t("https://example.com:443", "https://example.com", { keepPort: true })
-  t("https://example.com:80", "https://example.com:80", { keepPort: true })
-  t("https://example.com:8080", "https://example.com:8080", { keepPort: true })
-  t("example.com:80", "https://example.com:80", { keepPort: true })
-  t("example.com:1234", "https://example.com:1234", { keepPort: true })
-  t("example.com:1234", "https://example.com", { keepPort: false })
+  // port
+  t("http://example.com:80", "http://example.com", { port: false })
+  t("http://example.com:80", "http://example.com", { port: true })
+  t("https://example.com:443", "https://example.com", { port: false })
+  t("https://example.com:443", "https://example.com", { port: true })
+  t("https://example.com:80", "https://example.com:80", { port: true })
+  t("https://example.com:8080", "https://example.com:8080", { port: true })
+  t("example.com:80", "https://example.com:80", { port: true })
+  t("example.com:1234", "https://example.com:1234", { port: true })
+  t("example.com:1234", "https://example.com", { port: false })
 
-  // keepDirectoryIndex
+  // index
   t("example.com/index.html", "https://example.com/index.html")
-  t("example.com/index.html", "https://example.com", { keepDirectoryIndex: false })
+  t("example.com/index.html", "https://example.com", { index: false })
   t("example.com/foo/index.html", "https://example.com/foo/index.html")
-  t("example.com/foo/index.html", "https://example.com/foo", { keepDirectoryIndex: false })
+  t("example.com/foo/index.html", "https://example.com/foo", { index: false })
 
-  t("example.com/foo/index", "https://example.com/foo/index", { keepDirectoryIndex: false })
-  t("example.com/foo/index.", "https://example.com/foo/index.", { keepDirectoryIndex: false })
-  t("example.com/foo/index.htm", "https://example.com/foo", { keepDirectoryIndex: false })
+  t("example.com/foo/index", "https://example.com/foo/index", { index: false })
+  t("example.com/foo/index.", "https://example.com/foo/index.", { index: false })
+  t("example.com/foo/index.htm", "https://example.com/foo", { index: false })
 
-  // keepQueryParams
-  t("example.com/?foo=bar", "https://example.com", { keepQueryParams: false })
-  t("example.com/?foo=bar", "https://example.com/?foo=bar", { keepQueryParams: true })
-  t("example.com/?foo=bar&", "https://example.com/?foo=bar", { keepQueryParams: true })
+  // search
+  t("example.com/?foo=bar", "https://example.com", { search: false })
+  t("example.com/?foo=bar", "https://example.com/?foo=bar", { search: true })
+  t("example.com/?foo=bar&", "https://example.com/?foo=bar", { search: true })
 
-  // sortQueryParams
-  t("example.com/?b=1&a=2", "https://example.com/?a=2&b=1", { sortQueryParams: true })
-  t("example.com/?b=1&a=2", "https://example.com/?b=1&a=2", { sortQueryParams: false })
-  t("example.com/?b=1&a=2", "https://example.com/?a=2&b=1", { sortQueryParams: true })
-  t("example.com/?b=1&a=2", "https://example.com/?b=1&a=2", { sortQueryParams: false })
+  // sortSearch
+  t("example.com/?b=1&a=2", "https://example.com/?a=2&b=1", { sortSearch: true })
+  t("example.com/?b=1&a=2", "https://example.com/?b=1&a=2", { sortSearch: false })
+  t("example.com/?b=1&a=2", "https://example.com/?a=2&b=1", { sortSearch: true })
+  t("example.com/?b=1&a=2", "https://example.com/?b=1&a=2", { sortSearch: false })
 
-  // keepHash
-  t("example.com/#foo", "https://example.com", { keepHash: false })
-  t("example.com/#foo", "https://example.com/#foo", { keepHash: true })
+  // fragment
+  t("example.com/#foo", "https://example.com", { fragment: false })
+  t("example.com/#foo", "https://example.com/#foo", { fragment: true })
 
-  // keepTextFragment
-  t("example.com/#:~:text=hello", "https://example.com", { keepTextFragment: false })
-  t("example.com/#:~:text=hello", "https://example.com/#:~:text=hello", { keepTextFragment: true })
-  t("example.com/#:~:text=hello%20world", "https://example.com/#:~:text=hello%20world", {
-    keepTextFragment: true,
-  })
+  // textFragment
+  t("example.com/#:~:text=hello", "https://example.com", { textFragment: false })
+  t("example.com/#:~:text=hello", "https://example.com/#:~:text=hello", { textFragment: true })
+  t("example.com/#:~:text=he%20wo", "https://example.com/#:~:text=he%20wo", { textFragment: true })
 
-  // filter query params
-  t("example.com/?b=2&a=1", "https://example.com/?a=1", { filterQueryParams: (k, v) => k === "a" })
-  t("example.com/?c=3&b=2&a=1", "https://example.com/?a=1&c=3", { filterQueryParams: (k, v) => k === "a" || v === "3" })
+  // filterSearch
+  t("example.com/?b=2&a=1", "https://example.com/?a=1", { filterSearch: (k, v) => k === "a" })
+  t("example.com/?c=3&b=2&a=1", "https://example.com/?a=1&c=3", { filterSearch: (k, v) => k === "a" || v === "3" })
 })
 
 test("custom protocol", () => {
-  t(`abc://example.com`, `abc://example.com`, { allowCustomProtocol: true })
-  t(`abc://www.example.com/`, `abc://example.com`, { allowCustomProtocol: true })
-  t(`abc://www.example.com/foo/bar`, `abc://example.com/foo/bar`, { allowCustomProtocol: true })
-  t(`abc://user:password@example.com`, `abc://example.com`, { allowCustomProtocol: true })
+  t(`abc://example.com`, `abc://example.com`, { customProtocol: true })
+  t(`abc://www.example.com/`, `abc://example.com`, { customProtocol: true })
+  t(`abc://www.example.com/foo/bar`, `abc://example.com/foo/bar`, { customProtocol: true })
+  t(`abc://user:password@example.com`, `abc://example.com`, { customProtocol: true })
 
-  t(`foo+bar://example.com`, `foo+bar://example.com`, { allowCustomProtocol: true })
-  t(`foo-bar://example.com`, `foo-bar://example.com`, { allowCustomProtocol: true })
-  t(`foo.bar://example.com`, `foo.bar://example.com`, { allowCustomProtocol: true })
+  t(`foo+bar://example.com`, `foo+bar://example.com`, { customProtocol: true })
+  t(`foo-bar://example.com`, `foo-bar://example.com`, { customProtocol: true })
+  t(`foo.bar://example.com`, `foo.bar://example.com`, { customProtocol: true })
 
-  // t(`weixin://dl/chat?mao`, ``, { allowCustomProtocol: true })
-  // t(`weixin://dl/chat?mao&dzedun`, ``, { allowCustomProtocol: true })
+  // t(`weixin://dl/chat?mao`, ``, { customProtocol: true })
+  // t(`weixin://dl/chat?mao&dzedun`, ``, { customProtocol: true })
 })
 
 test("unhappy path", () => {
@@ -263,11 +261,11 @@ test("unhappy path", () => {
   t("foo example.com", null)
 
   // can't say for sure "user:" is protocol or username
-  t("user:pass@example.com", null, { keepAuth: false })
-  t("user:pass@example.com", null, { keepAuth: true })
-  t(":pass@example.com", null, { keepAuth: true })
-  t("user:@example.com", null, { keepAuth: true })
-  t(":@example.com", null, { keepAuth: true })
+  t("user:pass@example.com", null, { auth: false })
+  t("user:pass@example.com", null, { auth: true })
+  t(":pass@example.com", null, { auth: true })
+  t("user:@example.com", null, { auth: true })
+  t(":@example.com", null, { auth: true })
 
   // https://en.wikipedia.org/wiki/List_of_URI_schemes
   t("data:", null)
