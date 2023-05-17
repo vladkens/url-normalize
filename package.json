@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "build": "rm -rf dist && pkgroll --minify && ls -lah dist",
-    "test": "uvu -r tsm tests/",
+    "test": "tsc --noEmit && uvu -r tsm tests/",
     "test-cov": "c8 --include=src yarn test",
     "test-watch": "watchexec -e ts 'clear && yarn test'",
     "bench": "node --loader tsm --no-warnings benchmark.ts",
