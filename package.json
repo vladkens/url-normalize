@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "url-normalize",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "author": "Vlad Pronsky <v.pronsky@gmail.com>",
   "repository": "vladkens/url-normalize",
   "description": "Normalize URLs to a standardized form. HTTPS by default, flexible configuration, custom protocols, domain extraction, humazing URL, and punycode support. Both CJS & ESM modules available.",
