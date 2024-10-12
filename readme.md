@@ -1,21 +1,13 @@
 # url-normalize
 
 <div align="center">
-  <a href="https://npmjs.org/package/url-normalize">
-    <img src="https://badgen.net/npm/v/url-normalize" alt="version" />
-  </a>
-  <a href="https://github.com/vladkens/url-normalize/actions">
-    <img src="https://github.com/vladkens/url-normalize/workflows/test/badge.svg" alt="test status" />
-  </a>
-  <a href="https://packagephobia.now.sh/result?p=url-normalize">
-    <img src="https://badgen.net/packagephobia/publish/url-normalize" alt="size" />
-  </a>
-  <a href="https://npmjs.org/package/url-normalize">
-    <img src="https://badgen.net/npm/dm/url-normalize" alt="downloads" />
-  </a>
-  <a href="https://github.com/vladkens/url-normalize/blob/main/LICENSE">
-    <img src="https://badgen.net/github/license/vladkens/url-normalize" alt="license" />
-  </a>
+
+[<img src="https://badgen.net/npm/v/url-normalize" alt="version" />](https://npmjs.org/package/url-normalize)
+[<img src="https://badgen.net/packagephobia/publish/url-normalize" alt="size" />](https://packagephobia.now.sh/result?p=url-normalize)
+[<img src="https://badgen.net/npm/dm/url-normalize" alt="downloads" />](https://npmjs.org/package/url-normalize)
+[<img src="https://badgen.net/github/license/vladkens/url-normalize" alt="license" />](https://github.com/vladkens/url-normalize/blob/main/LICENSE)
+[<img src="https://badgen.net/static/-/buy%20me%20a%20coffee/ff813f?icon=buymeacoffee&label" alt="donate" />](https://buymeacoffee.com/vladkens)
+
 </div>
 
 **Normalize URLs** to a standardized form. **HTTPS** by default, flexible configuration, custom protocols, **domain extraction**, **humazing URL**, and **punycode** support. Both CJS & ESM modules available.
