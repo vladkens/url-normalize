@@ -15,6 +15,10 @@
 ## Install
 
 ```sh
+npm i url-normalize
+```
+
+```sh
 yarn add url-normalize
 ```
 
