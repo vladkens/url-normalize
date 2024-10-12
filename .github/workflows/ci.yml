@@ -19,9 +19,7 @@ jobs:
           cache: "yarn"
 
       - run: yarn install --frozen-lockfile
-      - run: yarn format-check
-      - run: yarn test-cov
-      - run: yarn build
+      - run: yarn ci
 
   release:
     runs-on: ubuntu-latest
@@ -37,8 +35,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - run: yarn install --frozen-lockfile
-      - run: yarn test
-      - run: yarn build
+      - run: yarn ci
 
       - run: npm publish
         env:

@@ -66,6 +66,8 @@ test("should normalize domain", () => {
   t("xn--9q8huc.ws", "https://👻💥.ws", { unicode: true })
   t("https://xn--mgbh0fb.xn--wgbh1c", "https://مثال.مصر", { unicode: true })
   t("https://xn--eby-7cd.com", "https://ebаy.com", { unicode: true })
+
+  t("", null)
 })
 
 test("should normalize path", () => {

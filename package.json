@@ -2,10 +2,33 @@
   "type": "module",
   "name": "url-normalize",
   "version": "2.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf dist && pkgroll --minify && ls -lah dist",
+    "test": "tsc --noEmit && uvu -r tsm tests/",
+    "test-cov": "c8 --include=src yarn test",
+    "test-watch": "watchexec -e ts 'clear && yarn test'",
+    "bench": "node --loader tsm --no-warnings benchmark.ts",
+    "format": "prettier --write '{src,tests}/**/*.{js,jsx,ts,tsx}'",
+    "format-check": "prettier --check '{src,tests}/**/*.{js,jsx,ts,tsx}'",
+    "ci": "yarn format-check && yarn test && yarn build"
+  },
+  "dependencies": {
+    "@types/punycode": "2.1.4",
+    "punycode": "2.3.1"
+  },
+  "devDependencies": {
+    "c8": "10.1.2",
+    "pkgroll": "2.5.0",
+    "prettier": "3.3.3",
+    "prettier-plugin-organize-imports": "4.1.0",
+    "tsm": "2.3.0",
+    "typescript": "5.6.3",
+    "uvu": "0.5.6"
+  },
   "author": "Vlad Pronsky <v.pronsky@gmail.com>",
   "repository": "vladkens/url-normalize",
   "description": "Normalize URLs to a standardized form. HTTPS by default, flexible configuration, custom protocols, domain extraction, humazing URL, and punycode support. Both CJS & ESM modules available.",
-  "license": "MIT",
   "keywords": [
     "canonical",
     "domain",
@@ -23,28 +46,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "rm -rf dist && pkgroll --minify && ls -lah dist",
-    "test": "tsc --noEmit && uvu -r tsm tests/",
-    "test-cov": "c8 --include=src yarn test",
-    "test-watch": "watchexec -e ts 'clear && yarn test'",
-    "bench": "node --loader tsm --no-warnings benchmark.ts",
-    "format": "prettier --write '{src,tests}/**/*.{js,jsx,ts,tsx}'",
-    "format-check": "prettier --check '{src,tests}/**/*.{js,jsx,ts,tsx}'"
-  },
-  "dependencies": {
-    "@types/punycode": "^2.1.0",
-    "punycode": "^2.3.0"
-  },
-  "devDependencies": {
-    "c8": "^7.13.0",
-    "pkgroll": "^1.10.0",
-    "prettier": "^2.8.8",
-    "prettier-plugin-organize-imports": "^3.2.2",
-    "tsm": "^2.3.0",
-    "typescript": "^5.0.4",
-    "uvu": "^0.5.6"
-  },
   "types": "./dist/main.d.cts",
   "exports": {
     "require": {
