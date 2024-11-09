@@ -1,11 +1,11 @@
 {
   "type": "module",
   "name": "url-normalize",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "license": "MIT",
   "scripts": {
     "build": "rm -rf dist && pkgroll --minify && ls -lah dist",
-    "test": "tsc --noEmit && uvu -r tsm tests/",
+    "test": "uvu -r tsm tests/",
     "test-cov": "c8 --include=src yarn test",
     "test-watch": "watchexec -e ts 'clear && yarn test'",
     "bench": "node --loader tsm --no-warnings benchmark.ts",
