@@ -1,7 +1,7 @@
-.PHONY: test test-ts test-matrix-ts clean
+.PHONY: default fmt test
 
 default:
-	yarn ci && yarn bench
+	yarn format && yarn ci && yarn bench
 
 fmt:
 	yarn format
