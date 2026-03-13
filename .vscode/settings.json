@@ -1,9 +1,17 @@
 {
-  "prettier.prettierPath": "./node_modules/prettier",
+  "code-runner.executorMap": {
+    "javascript": "node",
+    "typescript": "node --import tsx"
+  },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "files.exclude": {
+    ".claude": true,
     "coverage": true,
-    "yarn.lock": true
+    "dist": true,
+    "LICENSE": true,
+    "mise.toml": true,
+    "node_modules": true,
+    "package-lock.json": true
   }
 }

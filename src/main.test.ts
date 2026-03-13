@@ -1,9 +1,16 @@
-import { test } from "uvu"
-import { equal, not, throws } from "uvu/assert"
-import { Options, extractDomain, extractDomainOrFail, humanizeUrl, urlNormalize, urlNormalizeOrFail } from "../src/main"
+import { deepStrictEqual as equal, doesNotThrow, strictEqual, throws } from "node:assert"
+import { test } from "node:test"
+import {
+  Options,
+  extractDomain,
+  extractDomainOrFail,
+  humanizeUrl,
+  urlNormalize,
+  urlNormalizeOrFail,
+} from "./main"
 
 const t = (url: string, exp: string | null, opts?: Options) => {
-  return equal(urlNormalize(url, opts), exp, `FAIL: ${url} -> ${exp}`)
+  return strictEqual(urlNormalize(url, opts), exp, `FAIL: ${url} -> ${exp}`)
 }
 
 test("should normalize domain", () => {
@@ -225,7 +232,9 @@ test("should allow custom options", () => {
 
   // filterSearch
   t("example.com/?b=2&a=1", "https://example.com/?a=1", { filterSearch: (k, v) => k === "a" })
-  t("example.com/?c=3&b=2&a=1", "https://example.com/?a=1&c=3", { filterSearch: (k, v) => k === "a" || v === "3" })
+  t("example.com/?c=3&b=2&a=1", "https://example.com/?a=1&c=3", {
+    filterSearch: (k, v) => k === "a" || v === "3",
+  })
 })
 
 test("custom protocol", () => {
@@ -284,12 +293,12 @@ test("should throw on fail", () => {
   throws(() => urlNormalizeOrFail("example"))
   throws(() => urlNormalizeOrFail(".com"))
 
-  not.throws(() => urlNormalizeOrFail("example.com"))
-  not.throws(() => urlNormalizeOrFail("example.com:80"))
+  doesNotThrow(() => urlNormalizeOrFail("example.com"))
+  doesNotThrow(() => urlNormalizeOrFail("example.com:80"))
 })
 
 test("should extract domain", () => {
-  const t = (url: string, exp: string | null) => equal(extractDomain(url), exp)
+  const t = (url: string, exp: string | null) => strictEqual(extractDomain(url), exp)
 
   t("https://example.com", "example.com")
   t("https://example.com/", "example.com")
@@ -310,12 +319,13 @@ test("should throws on extract domain fail", () => {
   throws(() => extractDomainOrFail("example"))
   throws(() => extractDomainOrFail(".com"))
 
-  not.throws(() => extractDomainOrFail("example.com"))
-  not.throws(() => extractDomainOrFail("example.com:80"))
+  doesNotThrow(() => extractDomainOrFail("example.com"))
+  doesNotThrow(() => extractDomainOrFail("example.com:80"))
 })
 
 test("should humanizeUrl", () => {
-  const t = (url: string, exp: string | null) => equal(humanizeUrl(url), exp, `FAIL: ${url} -> ${exp}`)
+  const t = (url: string, exp: string | null) =>
+    strictEqual(humanizeUrl(url), exp, `FAIL: ${url} -> ${exp}`)
 
   t("https://example.com", "example.com")
   t("https://www.example.com/", "example.com")
@@ -329,5 +339,3 @@ test("should humanizeUrl", () => {
   t("https://example.com/foo/#tag", "example.com/foo/#tag")
   t("example.com:443/foo/index.html?a=2&a=1#tag", "example.com/foo/index.html?a=2&a=1#tag")
 })
-
-test.run()

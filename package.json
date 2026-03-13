@@ -1,47 +1,56 @@
 {
   "type": "module",
   "name": "url-normalize",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "license": "MIT",
   "scripts": {
     "build": "rm -rf dist && pkgroll --minify && ls -lah dist",
-    "test": "uvu -r tsm tests/",
-    "test-cov": "c8 --include=src yarn test",
-    "test-watch": "watchexec -e ts 'clear && yarn test'",
-    "bench": "node --loader tsm --no-warnings benchmark.ts",
+    "test": "tsx --test --test-reporter=dot src/main.test.ts",
+    "test-cov": "tsx --experimental-test-coverage --test src/main.test.ts",
+    "bench": "node --import tsx --no-warnings benchmark.ts",
     "format": "prettier --write --log-level warn .",
     "lint": "tsc --noEmit && prettier --check .",
-    "ci": "yarn lint && yarn test-cov && yarn build"
+    "ci": "npm run lint && npm run test-cov && npm run build"
   },
   "dependencies": {
-    "@types/punycode": "2.1.4",
     "punycode": "2.3.1"
   },
   "devDependencies": {
-    "c8": "10.1.3",
-    "pkgroll": "2.15.3",
-    "prettier": "3.6.2",
-    "prettier-plugin-organize-imports": "4.2.0",
-    "tsm": "2.3.0",
-    "typescript": "5.9.2",
-    "uvu": "0.5.6"
+    "@types/punycode": "2.1.4",
+    "@types/node": "25.5.0",
+    "pkgroll": "2.27.0",
+    "prettier": "3.8.1",
+    "prettier-plugin-organize-imports": "4.3.0",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
   },
-  "author": "Vlad Pronsky <v.pronsky@gmail.com>",
+  "author": "vladkens <v.pronsky@gmail.com>",
   "repository": "vladkens/url-normalize",
-  "description": "Normalize URLs to a standardized form. HTTPS by default, flexible configuration, custom protocols, domain extraction, humazing URL, and punycode support. Both CJS & ESM modules available.",
+  "description": "Normalize, validate, and canonicalize URLs — returns HTTPS canonical form or null for invalid input. Domain extraction, URL humanization, Punycode/Unicode/IDN support, 12 config options. TypeScript, CJS + ESM.",
   "keywords": [
+    "url",
+    "uri",
+    "normalize",
+    "normalization",
     "canonical",
+    "validate",
+    "validation",
+    "validator",
+    "sanitize",
+    "clean",
+    "parse",
+    "parser",
     "domain",
     "extract",
-    "humanization",
     "humanize",
-    "normalization",
-    "normalize",
     "punycode",
-    "querystrings",
     "unicode",
-    "uri",
-    "url"
+    "idn",
+    "idna",
+    "querystring",
+    "query",
+    "link",
+    "typescript"
   ],
   "files": [
     "dist"

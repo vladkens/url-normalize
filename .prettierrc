@@ -5,13 +5,5 @@
   "singleQuote": false,
   "tabWidth": 2,
   "trailingComma": "all",
-  "useTabs": false,
-  "overrides": [
-    {
-      "files": "*.test.ts",
-      "options": {
-        "printWidth": 120
-      }
-    }
-  ]
+  "useTabs": false
 }

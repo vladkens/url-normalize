@@ -1,10 +1,14 @@
-.PHONY: default fmt test
+.PHONY: default fmt test update
 
-default:
-	yarn format && yarn ci && yarn bench
+default: fmt
+	npm run format && npm run ci
 
 fmt:
-	yarn format
+	npm run format
 
 test:
-	yarn test
+	npm test
+
+update:
+	npx --yes npm-check-updates -u
+	npm install

@@ -1,3 +1,5 @@
-node_modules/
+.claude/**/*.local.json
 coverage/
 dist/
+mise.toml
+node_modules/
