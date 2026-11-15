@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "url-normalize",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "license": "MIT",
   "scripts": {
     "build": "rm -rf dist && pkgroll --minify && ls -lah dist",

@@ -1,5 +1,35 @@
 # Changelog
 
+## v2.4.0 – 2026-11-16
+
+### Fixes
+
+- Kept percent-escapes that change URL meaning: `%`, `&`, `+`, `;`, `=`, `#` and control chars in the query, `%25`, `%5C` and control chars in the path. Normalizing is now idempotent (#5)
+- Kept the query as written: `?a` no longer becomes `?a=`, and invalid UTF-8 is not replaced. The query is still sorted, by decoded key, keeping the order of repeated keys
+- Removed every empty query pair with `sortSearch: false` too (`?a=1&&b=2&&` gave `?a=1&b=2&`)
+- Kept `#/redirect/` and `?next=/` as they are, kept `%5C` and `%09` in the path
+- Accepted IPv6 hosts (`https://[2001:db8::1]`) and rejected relative paths like `/evil.com`
+- `forceProtocol` drops the old default port (`https://example.com:80` → `http://example.com`)
+- `filterSearch` sees every pair, it skipped some when removing them
+
+### Security
+
+- `forceProtocol`, `protocol: false` and `humanizeUrl` could take minutes on a crafted scheme like `a.+.+.+z://`
+- `unicode: true` could rewrite the URL from a hostname with `$'` in it
+- Long runs of dots in the hostname and `filterSearch` on long queries were quadratic
+- `customProtocol` rejects `javascript:` and `vbscript:` URLs
+
+### Maintenance
+
+- Bundled `punycode`: no dependencies, no `DEP0040` warning from Node's deprecated builtin, under 2 KB brotli
+- Fixed the readme: `port` defaults to `true`, 14 options, `index: false` strips any `index.*`
+- Updated dev dependencies; tested on Node 22, 24 and 26
+- Releases are published from CI with npm Trusted Publishing and provenance, with no npm token
+
+**Full Changelog**: https://github.com/vladkens/url-normalize/compare/v2.3.0...v2.4.0
+
+---
+
 ## v2.3.0 — 2026-03-13
 
 - No user-visible changes. Migrated tooling to npm, tsx, and Node's native test runner.
