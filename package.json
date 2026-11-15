@@ -26,7 +26,7 @@
   },
   "author": "vladkens <v.pronsky@gmail.com>",
   "repository": "vladkens/url-normalize",
-  "description": "Normalize, validate, and canonicalize URLs — returns HTTPS canonical form or null for invalid input. Domain extraction, URL humanization, Punycode/Unicode/IDN support, 12 config options. TypeScript, CJS + ESM.",
+  "description": "Normalize, validate, and canonicalize URLs — returns HTTPS canonical form or null for invalid input. Domain extraction, URL humanization, Punycode/Unicode/IDN support, 14 config options. TypeScript, CJS + ESM.",
   "keywords": [
     "url",
     "uri",

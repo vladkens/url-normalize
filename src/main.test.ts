@@ -1,4 +1,4 @@
-import { deepStrictEqual as equal, doesNotThrow, strictEqual, throws } from "node:assert"
+import { deepStrictEqual as equal, doesNotThrow, ok, strictEqual, throws } from "node:assert"
 import { test } from "node:test"
 import {
   Options,
@@ -98,6 +98,9 @@ test("should normalize path", () => {
   t("example.com/%7Efoo", "https://example.com/~foo")
   t("example.com/a%2Fb", "https://example.com/a%2Fb")
   t("example.com/100%2541", "https://example.com/100%2541") // #5
+  t("example.com/a%5Cb", "https://example.com/a%5Cb") // "\\" is "/" for URL
+  t("example.com/a%09b%0A", "https://example.com/a%09b%0A") // dropped by URL when decoded
+  t("example.com/a%C3/%E2%82%AC", "https://example.com/a%C3/%E2%82%AC") // not utf-8
   t("example.com/Foo/Bar", "https://example.com/Foo/Bar")
 
   t("example.com/https://google.com", "https://example.com/https://google.com")
@@ -137,6 +140,21 @@ test("should normalize query params", () => {
   t("example.com/?a%3Db=1", "https://example.com/?a%3Db=1")
   t("example.com/?q=100%25", "https://example.com/?q=100%25")
   t("example.com/?q=a%23b", "https://example.com/?q=a%23b")
+  t("example.com/?q=a%3Bb", "https://example.com/?q=a%3Bb")
+  t("example.com/?q=a%0Ab", "https://example.com/?q=a%0Ab")
+
+  // keep raw pairs, unlike URLSearchParams
+  t("example.com/?b&a", "https://example.com/?a&b")
+  t("example.com/index.php?/foo/bar", "https://example.com/index.php?/foo/bar")
+  t("example.com/?token=abc==", "https://example.com/?token=abc==")
+  t("example.com/?a=1;b=2", "https://example.com/?a=1;b=2")
+  t("example.com/?kw=%C3%C0%CE%C4", "https://example.com/?kw=%C3%C0%CE%C4") // not utf-8
+  t("example.com/??a=1", "https://example.com/??a=1")
+  t("example.com/?a=1&&b=2&&", "https://example.com/?a=1&b=2")
+  t("example.com/?b=1&a=2&b=0", "https://example.com/?a=2&b=1&b=0")
+  t("example.com/?a%2bb=1&a%2Bb=0", "https://example.com/?a%2Bb=1&a%2Bb=0")
+  t("example.com/?b=1&%61=2", "https://example.com/?a=2&b=1")
+  t("example.com/?next=/", "https://example.com/?next=/")
 })
 
 test("should normalize hash", () => {
@@ -148,6 +166,8 @@ test("should normalize hash", () => {
   t("example.com/#/foo", "https://example.com/#/foo")
   t("example.com/#/foo?bar=1", "https://example.com/#/foo?bar=1")
   t("example.com/#/foo?b=1&a=2", "https://example.com/#/foo?b=1&a=2")
+  t("example.com/#/foo/", "https://example.com/#/foo/")
+  t("example.com/?a=1#/", "https://example.com/?a=1#/")
 })
 
 test("should allow custom options", () => {
@@ -185,6 +205,8 @@ test("should allow custom options", () => {
   t("https://example.com", "example.com", { forceProtocol: "abc", protocol: false })
   t("https://example.com", "sftp://example.com", { forceProtocol: "sftp" })
   t("tg://example.com", "we://example.com", { forceProtocol: "we" })
+  t("https://example.com:80", "http://example.com", { forceProtocol: "http" })
+  t("http://example.com:443/a", "https://example.com/a", { forceProtocol: "https" })
 
   // www
   t("www.example.com", "https://www.example.com", { www: true })
@@ -245,6 +267,21 @@ test("should allow custom options", () => {
   t("example.com/?c=3&b=2&a=1", "https://example.com/?a=1&c=3", {
     filterSearch: (k, v) => k === "a" || v === "3",
   })
+  t("example.com/?a=1&b=2&c=3&d=4", "https://example.com", { filterSearch: () => false })
+  t("example.com/?b=x%3Dy&a&c=1", "https://example.com/?b=x%3Dy&a", {
+    filterSearch: (k) => k !== "c",
+    sortSearch: false,
+  })
+  t("example.com/?a=b+c&a=b%2Bc", "https://example.com/?a=b%2Bc", {
+    filterSearch: (k, v) => v === "b+c",
+  })
+
+  // unicode
+  t("https://xn--9q8huc.ws:pw@xn--9q8huc.ws", "https://xn--9q8huc.ws:pw@👻💥.ws", {
+    unicode: true,
+    auth: true,
+  })
+  t("https://evil.com$'.good.com/x", "https://evil.com$'.good.com/x", { unicode: true })
 })
 
 test("custom protocol", () => {
@@ -256,6 +293,10 @@ test("custom protocol", () => {
   t(`foo+bar://example.com`, `foo+bar://example.com`, { customProtocol: true })
   t(`foo-bar://example.com`, `foo-bar://example.com`, { customProtocol: true })
   t(`foo.bar://example.com`, `foo.bar://example.com`, { customProtocol: true })
+
+  // run code on click
+  t(`javascript://example.com/%0Aalert(1)`, null, { customProtocol: true })
+  t(`vbscript://example.com`, null, { customProtocol: true })
 
   // t(`weixin://dl/chat?mao`, ``, { customProtocol: true })
   // t(`weixin://dl/chat?mao&dzedun`, ``, { customProtocol: true })
@@ -296,6 +337,29 @@ test("unhappy path", () => {
 
   t("localhost", null) // todo: add specil case for localhost?
   t("127.0.0.1", "https://127.0.0.1") // todo: add specil case to be http://127.0.0.1?
+  t("[::1]", "https://[::1]")
+  t("https://[2001:db8::1]:8443/foo", "https://[2001:db8::1]:8443/foo")
+
+  // path, not protocol-relative url
+  t("/example.com", null)
+  t("/", null)
+})
+
+test("should be fast on long input", () => {
+  const st = performance.now()
+  const pairs = Array.from({ length: 5e4 }, (_, i) => `k${i}=v`).join("&")
+
+  t(
+    `a${".+".repeat(10)}z://example.com/${"x".repeat(30)}`,
+    "https://example.com/" + "x".repeat(30),
+    {
+      forceProtocol: "https",
+    },
+  )
+  urlNormalize(`https://a${".".repeat(1e5)}b.com`)
+  urlNormalize(`https://example.com/?${pairs}`, { filterSearch: (k) => k.endsWith("1") })
+
+  ok(performance.now() - st < 1000)
 })
 
 test("should throw on fail", () => {

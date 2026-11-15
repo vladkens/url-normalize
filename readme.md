@@ -14,7 +14,7 @@ Turns any URL-like string into a clean, canonical `https://` URL — returns `nu
 - **Safe.** Returns `null` for invalid input — no try/catch needed.
 - **Tiny.** 980 bytes (brotli). One dependency.
 - **Smart defaults.** HTTPS, no `www`, sorted query params, stripped default ports — automatic.
-- **Configurable.** 12 options to control every part of the URL.
+- **Configurable.** 14 options to control every part of the URL.
 - **International.** Unicode ↔ Punycode conversion in both directions.
 - **Batteries included.** `extractDomain` and `humanizeUrl` utilities come with the package.
 
@@ -35,7 +35,7 @@ urlNormalize("example.com")
 // → "https://example.com"
 
 urlNormalize("//www.example.com:443/../foo/bar?b=2&a=1#tag")
-// → "https://example.com/foo/bar?a=1&b=2"
+// → "https://example.com/foo/bar?a=1&b=2#tag"
 
 urlNormalize("👻💥.ws")
 // → "https://xn--9q8huc.ws"
@@ -89,18 +89,19 @@ urlNormalize("https://user:pass@example.com") // → "https://example.com"
 urlNormalize("https://user:pass@example.com", { auth: true }) // → "https://user:pass@example.com"
 ```
 
-### `port` (default: `false`)
+### `port` (default: `true`)
 
 Keep or strip port numbers. Default ports (80 for HTTP, 443 for HTTPS) are always removed.
 
 ```typescript
-urlNormalize("https://example.com:8080", { port: true }) // → "https://example.com:8080"
-urlNormalize("https://example.com:443", { port: true }) // → "https://example.com"
+urlNormalize("https://example.com:8080") // → "https://example.com:8080"
+urlNormalize("https://example.com:8080", { port: false }) // → "https://example.com"
+urlNormalize("https://example.com:443") // → "https://example.com"
 ```
 
 ### `index` (default: `true`)
 
-When `false`, strips `index.html` / `index.htm` from path endings.
+When `false`, strips `index.html`, `index.php` and other `index.*` files from path endings.
 
 ```typescript
 urlNormalize("example.com/foo/index.html") // → "https://example.com/foo/index.html"
@@ -153,7 +154,7 @@ urlNormalize("example.com/#:~:text=hello", { textFragment: true }) // → "https
 
 ### `customProtocol` (default: `false`)
 
-Allow non-standard protocols like `tg://`, `ftps://`, etc.
+Allow non-standard protocols like `tg://`, `ftps://`, etc. `javascript://` and `vbscript://` are always rejected, as they run code on click.
 
 ```typescript
 urlNormalize("tg://example.com") // → null
