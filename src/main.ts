@@ -40,6 +40,14 @@ const canFail = <T>(fn: () => T): T | null => {
   }
 }
 
+// decode percent-escapes for readability, but keep `keep` ones encoded, as they change url meaning
+const decodeExcept = (val: string, keep: RegExp, decode: (x: string) => string) => {
+  return val
+    .split(keep)
+    .map((x, i) => (i % 2 ? x : decode(x)))
+    .join("")
+}
+
 export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   options = { ...DefaultOptions, ...options }
   url = url.trim()
@@ -84,7 +92,8 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
     obj.port = ""
   }
 
-  canFail(() => (obj.pathname = decodeURI(obj.pathname)))
+  // decodeURI keeps reserved chars encoded, except "%"
+  canFail(() => (obj.pathname = decodeExcept(obj.pathname, /(%25)/, decodeURI)))
   if (!options.index) {
     obj.pathname = obj.pathname.replace(/\/index\.[a-z0-9]+$/i, "/") // remove "index.html"
   }
@@ -109,7 +118,9 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
 
     if (options.sortSearch) {
       obj.searchParams.sort()
-      canFail(() => (obj.search = decodeURIComponent(obj.searchParams.toString())))
+      const search = obj.searchParams.toString()
+      const keep = /(%(?:25|26|2B|3D|23))/ // "%", "&", "+", "=", "#"
+      canFail(() => (obj.search = decodeExcept(search, keep, decodeURIComponent)))
     }
   }
 
