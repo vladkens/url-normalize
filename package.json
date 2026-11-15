@@ -12,21 +12,18 @@
     "lint": "tsc --noEmit && prettier --check .",
     "ci": "npm run lint && npm run test-cov && npm run build"
   },
-  "dependencies": {
-    "punycode": "2.3.1"
-  },
   "devDependencies": {
-    "@types/punycode": "2.1.4",
     "@types/node": "26.6.6",
     "pkgroll": "2.29.0",
     "prettier": "3.9.10",
     "prettier-plugin-organize-imports": "4.3.0",
+    "punycode": "2.3.1",
     "tsx": "4.23.15",
     "typescript": "5.9.3"
   },
   "author": "vladkens <v.pronsky@gmail.com>",
   "repository": "vladkens/url-normalize",
-  "description": "Normalize, validate, and canonicalize URLs — returns HTTPS canonical form or null for invalid input. Domain extraction, URL humanization, Punycode/Unicode/IDN support, 12 config options. TypeScript, CJS + ESM.",
+  "description": "Normalize, validate, and canonicalize URLs — returns HTTPS canonical form or null for invalid input. Domain extraction, URL humanization, Punycode/Unicode/IDN support, 14 config options. TypeScript, CJS + ESM.",
   "keywords": [
     "url",
     "uri",
