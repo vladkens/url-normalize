@@ -3,7 +3,7 @@
 <div align="center">
 
 [<img src="https://badges.ws/npm/v/url-normalize" alt="version" />](https://npmjs.org/package/url-normalize)
-[<img src="https://packagephobia.com/badge?p=url-normalize" alt="size" />](https://packagephobia.now.sh/result?p=url-normalize)
+[<img src="https://badges.ws/packagephobia/install/url-normalize" alt="size" />](https://packagephobia.com/result?p=url-normalize)
 [<img src="https://badges.ws/npm/dm/url-normalize" alt="downloads" />](https://npmjs.org/package/url-normalize)
 [<img src="https://badges.ws/github/license/vladkens/url-normalize" alt="license" />](https://github.com/vladkens/url-normalize/blob/main/LICENSE)
 
