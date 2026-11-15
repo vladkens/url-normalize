@@ -45,7 +45,7 @@ const canFail = <T>(fn: () => T): T | null => {
 const decodeExcept = (val: string, keep: RegExp, decode: (x: string) => string) => {
   return val
     .split(keep)
-    .map((x, i) => (i % 2 ? x : (canFail(() => decode(x)) ?? x))) // not utf-8 stays as is
+    .map((x, i) => (i % 2 ? x.toUpperCase() : (canFail(() => decode(x)) ?? x))) // not utf-8 stays as is
     .join("")
 }
 
@@ -56,7 +56,8 @@ const SearchKeep = /(%(?:25|26|2B|3B|3D|23)|%[01][0-9A-F]|%7F)/i
 // code links, eg. "javascript://example.com/%0Aalert(1)"
 const ScriptProtocols = ["javascript:", "vbscript:"]
 
-const searchKey = (pair: string) => pair.split("=", 1)[0]
+// as servers read it: "a+b=%2b" -> ["a b", "+"]; "?" goes first, as the first one is dropped
+const parsePair = (pair: string) => [...new URLSearchParams(`?${pair}`)][0]
 
 export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   options = { ...DefaultOptions, ...options }
@@ -127,19 +128,15 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
     pairs = pairs.filter((x) => x !== "") // "?a=1&&b=2&" -> "?a=1&b=2"
 
     const filter = options.filterSearch
-    if (filter) {
-      pairs = pairs.filter((x) => {
-        const [[key, value]] = new URLSearchParams(`?${x}`) // "?" as first one is dropped
-        return filter(key, value)
-      })
-    }
+    if (filter) pairs = pairs.filter((x) => filter(...parsePair(x)))
 
     if (options.sortSearch) {
-      pairs = pairs.map((x) => decodeExcept(x, SearchKeep, decodeURIComponent))
-      pairs.sort((a, b) => {
-        const [x, y] = [searchKey(a), searchKey(b)]
-        return x < y ? -1 : x > y ? 1 : 0 // stable, so same keys keep order
-      })
+      // by decoded keys, so "a%2b" and "a%2B" are same; stable, so same keys keep order
+      const keys = pairs.map((x) => parsePair(x)[0])
+      const order = keys
+        .map((_, i) => i)
+        .sort((a, b) => (keys[a] === keys[b] ? 0 : keys[a] < keys[b] ? -1 : 1))
+      pairs = order.map((i) => decodeExcept(pairs[i], SearchKeep, decodeURIComponent))
     }
 
     // with "?", as setter drops first one of value: "??a" -> "?a"

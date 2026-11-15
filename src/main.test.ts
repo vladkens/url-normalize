@@ -152,6 +152,8 @@ test("should normalize query params", () => {
   t("example.com/??a=1", "https://example.com/??a=1")
   t("example.com/?a=1&&b=2&&", "https://example.com/?a=1&b=2")
   t("example.com/?b=1&a=2&b=0", "https://example.com/?a=2&b=1&b=0")
+  t("example.com/?a%2bb=1&a%2Bb=0", "https://example.com/?a%2Bb=1&a%2Bb=0")
+  t("example.com/?b=1&%61=2", "https://example.com/?a=2&b=1")
   t("example.com/?next=/", "https://example.com/?next=/")
 })
 
