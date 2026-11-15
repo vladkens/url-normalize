@@ -1,4 +1,5 @@
-import { toUnicode } from "punycode"
+// bundled; plain "punycode" resolves to the deprecated node builtin
+import { toUnicode } from "punycode/punycode.es6.js"
 
 export type Options = {
   auth?: boolean
@@ -44,13 +45,25 @@ const canFail = <T>(fn: () => T): T | null => {
 const decodeExcept = (val: string, keep: RegExp, decode: (x: string) => string) => {
   return val
     .split(keep)
-    .map((x, i) => (i % 2 ? x : decode(x)))
+    .map((x, i) => (i % 2 ? x : (canFail(() => decode(x)) ?? x))) // not utf-8 stays as is
     .join("")
 }
+
+// "\" in path is "/" for URL; "\t", "\n", "\r" are dropped by it, other controls are unreadable
+const PathKeep = /(%25|%5C|%[01][0-9A-F]|%7F)/i
+// "%", "&", "+", ";", "=", "#" split or end query params when decoded
+const SearchKeep = /(%(?:25|26|2B|3B|3D|23)|%[01][0-9A-F]|%7F)/i
+// code links, eg. "javascript://example.com/%0Aalert(1)"
+const ScriptProtocols = ["javascript:", "vbscript:"]
+
+const searchKey = (pair: string) => pair.split("=", 1)[0]
 
 export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   options = { ...DefaultOptions, ...options }
   url = url.trim()
+
+  // "/example.com" is a path, unlike protocol-relative "//example.com"
+  if (/^\/(?!\/)/.test(url)) throw new Error("Relative URL")
 
   const protocolRegex = /^[a-z0-9.+-]*:\/\//i
   if (!protocolRegex.test(url)) {
@@ -62,16 +75,21 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
 
   const obj = new URL(url)
 
-  if (
-    !options.customProtocol &&
-    !["http:", "https:", `${options.defaultProtocol}:`].includes(obj.protocol) &&
-    !options.forceProtocol // URL in nodejs not allow to change protocol, so do it on the end
-  ) {
-    throw new Error("Invalid protocol")
-  }
+  const allowed = options.customProtocol
+    ? !ScriptProtocols.includes(obj.protocol)
+    : ["http:", "https:", `${options.defaultProtocol}:`].includes(obj.protocol)
 
-  obj.hostname = obj.hostname.replace(/^\.*/, "") // ".example.com" -> "example.com"
-  obj.hostname = obj.hostname.replace(/\.*$/, "") // "example.com." -> "example.com
+  if (!allowed && !options.forceProtocol) throw new Error("Invalid protocol")
+
+  // drops default port of new protocol, but can't switch special and custom ones, so done at the end
+  if (options.forceProtocol) obj.protocol = options.forceProtocol
+
+  // ".example.com." -> "example.com"; no regex, as /\.*$/ is quadratic on long runs of dots
+  const host = obj.hostname
+  let [start, end] = [0, host.length]
+  while (host[start] === ".") start++
+  while (end > start && host[end - 1] === ".") end--
+  obj.hostname = host.slice(start, end)
 
   if (!options.www) {
     const parts = obj.hostname.split(".")
@@ -81,7 +99,7 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   // todo:
   // domain regex: /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/i
   const parts = obj.hostname.split(".").filter((x) => x !== "")
-  if (parts.length < 2) throw new Error("Invalid domain")
+  if (parts.length < 2 && !obj.hostname.startsWith("[")) throw new Error("Invalid domain") // ipv6
 
   if (!options.auth) {
     obj.username = ""
@@ -93,7 +111,7 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   }
 
   // decodeURI keeps reserved chars encoded, except "%"
-  canFail(() => (obj.pathname = decodeExcept(obj.pathname, /(%25)/, decodeURI)))
+  obj.pathname = decodeExcept(obj.pathname, PathKeep, decodeURI)
   if (!options.index) {
     obj.pathname = obj.pathname.replace(/\/index\.[a-z0-9]+$/i, "/") // remove "index.html"
   }
@@ -104,24 +122,28 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   if (!options.search) {
     obj.search = ""
   } else {
-    obj.search = obj.search.replace(/&$/, "") // remove last "&"
-    obj.search = obj.search.replace(/&{2,}/, "&") // replace multiple "&"
-    obj.search = obj.search.replace(/%20/g, "+") // replace "%20" to "+"
+    // raw pairs, as URLSearchParams re-encodes them: "?a" -> "?a=", "?a=b=c" -> "?a=b%3Dc"
+    let pairs = obj.search.slice(1).replace(/%20/g, "+").split("&")
+    pairs = pairs.filter((x) => x !== "") // "?a=1&&b=2&" -> "?a=1&b=2"
 
-    if (options.filterSearch) {
-      const params = new URLSearchParams(obj.search)
-      for (const [key, value] of params.entries()) {
-        if (!options.filterSearch(key, value)) params.delete(key)
-      }
-      obj.search = params.toString()
+    const filter = options.filterSearch
+    if (filter) {
+      pairs = pairs.filter((x) => {
+        const [[key, value]] = new URLSearchParams(`?${x}`) // "?" as first one is dropped
+        return filter(key, value)
+      })
     }
 
     if (options.sortSearch) {
-      obj.searchParams.sort()
-      const search = obj.searchParams.toString()
-      const keep = /(%(?:25|26|2B|3D|23))/ // "%", "&", "+", "=", "#"
-      canFail(() => (obj.search = decodeExcept(search, keep, decodeURIComponent)))
+      pairs = pairs.map((x) => decodeExcept(x, SearchKeep, decodeURIComponent))
+      pairs.sort((a, b) => {
+        const [x, y] = [searchKey(a), searchKey(b)]
+        return x < y ? -1 : x > y ? 1 : 0 // stable, so same keys keep order
+      })
     }
+
+    // with "?", as setter drops first one of value: "??a" -> "?a"
+    obj.search = pairs.length ? `?${pairs.join("&")}` : ""
   }
 
   if (!options.fragment) {
@@ -133,24 +155,17 @@ export const urlNormalizeOrFail = (url: string, options?: Options): string => {
   }
 
   let res = obj.toString()
-  if (res.endsWith("/") && !res.endsWith("/#/")) res = res.slice(0, -1)
-
-  let protocol = obj.protocol
-  if (options.forceProtocol) {
-    const regex = new RegExp(`^${obj.protocol}//`, "i")
-    res = res.replace(regex, `${options.forceProtocol}://`)
-    protocol = `${options.forceProtocol}:`
-  }
-
-  if (!options.protocol) {
-    const regex = new RegExp(`^${protocol}//`, "i")
-    res = res.replace(regex, "")
-  }
+  if (!obj.search && !obj.hash && res.endsWith("/")) res = res.slice(0, -1)
 
   if (options.unicode) {
-    const hostname = toUnicode(obj.hostname)
-    res = res.replace(obj.hostname, hostname)
+    // by position: hostname can be in auth too, and String.replace expands "$'" in it
+    const at = obj.username || obj.password ? res.indexOf("@") + 1 : obj.protocol.length + 2
+    res = res.slice(0, at) + toUnicode(obj.hostname) + res.slice(at + obj.hostname.length)
   }
+
+  // by slicing: protocol in regex can be slow, eg. "a.+.+.+z://example.com"
+  res = res.slice(obj.protocol.length + 2) // "https://"
+  if (options.protocol) res = `${options.forceProtocol || obj.protocol.slice(0, -1)}://${res}`
 
   return res
 }
