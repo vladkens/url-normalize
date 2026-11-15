@@ -12,7 +12,7 @@
 Turns any URL-like string into a clean, canonical `https://` URL — returns `null` if it can't.
 
 - **Safe.** Returns `null` for invalid input — no try/catch needed.
-- **Tiny.** 980 bytes (brotli). One dependency.
+- **Tiny.** Under 2 KB (brotli). Zero dependencies.
 - **Smart defaults.** HTTPS, no `www`, sorted query params, stripped default ports — automatic.
 - **Configurable.** 14 options to control every part of the URL.
 - **International.** Unicode ↔ Punycode conversion in both directions.
