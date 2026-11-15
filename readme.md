@@ -3,22 +3,43 @@
 <div align="center">
 
 [<img src="https://badges.ws/npm/v/url-normalize" alt="version" />](https://npmjs.org/package/url-normalize)
-[<img src="https://packagephobia.com/badge?p=url-normalize" alt="size" />](https://packagephobia.now.sh/result?p=url-normalize)
+[<img src="https://badges.ws/packagephobia/install/url-normalize" alt="size" />](https://packagephobia.com/result?p=url-normalize)
 [<img src="https://badges.ws/npm/dm/url-normalize" alt="downloads" />](https://npmjs.org/package/url-normalize)
 [<img src="https://badges.ws/github/license/vladkens/url-normalize" alt="license" />](https://github.com/vladkens/url-normalize/blob/main/LICENSE)
 
 </div>
 
-Turns any URL-like string into a clean, canonical `https://` URL — returns `null` if it can't.
+**One URL, one spelling.** Turns messy, user-typed URLs into a single canonical `https://` form, or `null` when the input is not a web URL. Zero dependencies, under 2 KB.
 
-- **Safe.** Returns `null` for invalid input — no try/catch needed.
-- **Tiny.** Under 2 KB (brotli). Zero dependencies.
-- **Smart defaults.** HTTPS, no `www`, sorted query params, stripped default ports — automatic.
-- **Configurable.** 14 options to control every part of the URL.
-- **International.** Unicode ↔ Punycode conversion in both directions.
-- **Batteries included.** `extractDomain` and `humanizeUrl` utilities come with the package.
+```typescript
+import { urlNormalize } from "url-normalize"
 
-Works with bare domains (`example.com`), protocol-relative (`//example.com`), and messy real-world URLs. Compared to [normalize-url](https://github.com/sindresorhus/normalize-url): dual CJS + ESM exports, `null` return instead of throwing, and built-in domain/display utilities.
+urlNormalize("WWW.Example.com:443/blog/../about?utm_source=x&b=2&a=1#")
+// → "https://example.com/about?a=1&b=2&utm_source=x"
+```
+
+## Why
+
+The same page reaches you spelled a dozen ways. Store or compare them as they are and you get duplicates; normalize them first and they collapse into one key.
+
+| Input                                                     | Output                          |
+| --------------------------------------------------------- | ------------------------------- |
+| `example.com`                                             | `https://example.com`           |
+| `//www.example.com/`                                      | `https://example.com`           |
+| `HTTPS://Example.com:443/a/../b`                          | `https://example.com/b`         |
+| `example.com/?b=2&a=1`                                    | `https://example.com/?a=1&b=2`  |
+| `пример.рф`                                               | `https://xn--e1afmkfd.xn--p1ai` |
+| `example.com/#:~:text=hello`                              | `https://example.com`           |
+| `example`, `mailto:hi@example.com`, `javascript:alert(1)` | `null`                          |
+
+Good for deduplicating links in a database, cache and crawler keys, comparing user-submitted URLs, and showing clean links in a UI.
+
+- **Never throws.** `null` for anything that is not a web URL; the `*OrFail` variants throw if you prefer.
+- **Keeps the meaning.** Decodes escapes for readability, but keeps the ones that would change the URL (`%26`, `%2B`, `%3D`, `%23`, `%25`, …). Normalizing twice gives the same result.
+- **Safe on hostile input.** Rejects `javascript:` and `vbscript:` links, runs in linear time on long or crafted strings.
+- **Tiny.** Under 2 KB brotli, zero dependencies, CJS + ESM, TypeScript types.
+- **International.** Punycode ↔ Unicode domains, both ways.
+- **Batteries included.** `extractDomain`, `humanizeUrl` and preset normalizers.
 
 ## Install
 
@@ -26,207 +47,75 @@ Works with bare domains (`example.com`), protocol-relative (`//example.com`), an
 npm i url-normalize
 ```
 
-## Usage
-
-```typescript
-import { urlNormalize } from "url-normalize"
-
-urlNormalize("example.com")
-// → "https://example.com"
-
-urlNormalize("//www.example.com:443/../foo/bar?b=2&a=1#tag")
-// → "https://example.com/foo/bar?a=1&b=2#tag"
-
-urlNormalize("👻💥.ws")
-// → "https://xn--9q8huc.ws"
-
-// Invalid input returns null — no exceptions
-urlNormalize("example") // → null
-urlNormalize("mailto:user@example.com") // → null
-```
-
 ## Options
 
-All options have sensible defaults. Pass an options object as the second argument.
+Pass an options object as the second argument. The defaults fit most cases.
 
-### `defaultProtocol` (default: `"https"`)
-
-Protocol to prepend when the URL has none. Preserves an existing protocol.
-
-```typescript
-urlNormalize("example.com", { defaultProtocol: "http" })
-// → "http://example.com"
-
-// Existing protocol is preserved
-urlNormalize("https://example.com", { defaultProtocol: "http" })
-// → "https://example.com"
-```
-
-### `protocol` (default: `true`)
-
-Include or strip the protocol prefix.
-
-```typescript
-urlNormalize("https://example.com/foo?bar=baz", { protocol: false })
-// → "example.com/foo?bar=baz"
-```
-
-### `www` (default: `false`)
-
-Keep or remove the `www.` subdomain.
+| Option            | Default   | Effect                                                                                                  |
+| ----------------- | --------- | ------------------------------------------------------------------------------------------------------- |
+| `defaultProtocol` | `"https"` | Protocol added when the input has none; an existing one is kept                                         |
+| `protocol`        | `true`    | `false` strips the protocol                                                                             |
+| `www`             | `false`   | `true` keeps `www.`                                                                                     |
+| `auth`            | `false`   | `true` keeps `user:pass@`                                                                               |
+| `port`            | `true`    | `false` strips the port; 80 and 443 are always removed                                                  |
+| `index`           | `true`    | `false` strips `index.html`, `index.php` and other `index.*` files                                      |
+| `search`          | `true`    | `false` strips the query                                                                                |
+| `sortSearch`      | `true`    | Sorts query params by key; repeated keys keep their order                                               |
+| `filterSearch`    | –         | `(key, value) => boolean`, keeps only the matching query params                                         |
+| `fragment`        | `true`    | `false` strips the `#hash`                                                                              |
+| `textFragment`    | `false`   | `true` keeps [text fragments](https://wicg.github.io/scroll-to-text-fragment/) (`#:~:text=…`)           |
+| `customProtocol`  | `false`   | `true` allows `tg://`, `ftps://` and other protocols; `javascript:` and `vbscript:` are always rejected |
+| `forceProtocol`   | –         | Replaces the protocol, e.g. `"sftp"`                                                                    |
+| `unicode`         | `false`   | `true` returns Unicode domains instead of Punycode                                                      |
 
 ```typescript
-urlNormalize("www.example.com") // → "https://example.com"
+urlNormalize("example.com", { defaultProtocol: "http" }) // → "http://example.com"
+urlNormalize("https://example.com/foo?bar=baz", { protocol: false }) // → "example.com/foo?bar=baz"
 urlNormalize("www.example.com", { www: true }) // → "https://www.example.com"
-```
-
-### `auth` (default: `false`)
-
-Keep or strip `user:pass@` credentials.
-
-```typescript
-urlNormalize("https://user:pass@example.com") // → "https://example.com"
 urlNormalize("https://user:pass@example.com", { auth: true }) // → "https://user:pass@example.com"
-```
-
-### `port` (default: `true`)
-
-Keep or strip port numbers. Default ports (80 for HTTP, 443 for HTTPS) are always removed.
-
-```typescript
 urlNormalize("https://example.com:8080") // → "https://example.com:8080"
 urlNormalize("https://example.com:8080", { port: false }) // → "https://example.com"
-urlNormalize("https://example.com:443") // → "https://example.com"
-```
-
-### `index` (default: `true`)
-
-When `false`, strips `index.html`, `index.php` and other `index.*` files from path endings.
-
-```typescript
-urlNormalize("example.com/foo/index.html") // → "https://example.com/foo/index.html"
 urlNormalize("example.com/foo/index.html", { index: false }) // → "https://example.com/foo"
-```
-
-### `search` (default: `true`)
-
-Keep or strip the query string.
-
-```typescript
 urlNormalize("example.com/?a=1&b=2", { search: false }) // → "https://example.com"
-```
-
-### `sortSearch` (default: `true`)
-
-Sort query parameters alphabetically.
-
-```typescript
-urlNormalize("example.com/?b=2&a=1") // → "https://example.com/?a=1&b=2"
 urlNormalize("example.com/?b=2&a=1", { sortSearch: false }) // → "https://example.com/?b=2&a=1"
-```
-
-### `filterSearch`
-
-Keep only matching query parameters.
-
-```typescript
-urlNormalize("example.com/?c=3&b=2&a=1", { filterSearch: (k, v) => k === "a" || v === "3" })
-// → "https://example.com/?a=1&c=3"
-```
-
-### `fragment` (default: `true`)
-
-Keep or strip the URL hash fragment.
-
-```typescript
-urlNormalize("example.com/#foo") // → "https://example.com/#foo"
+urlNormalize("example.com/?utm_source=x&id=1", { filterSearch: (k) => !k.startsWith("utm_") }) // → "https://example.com/?id=1"
 urlNormalize("example.com/#foo", { fragment: false }) // → "https://example.com"
-```
-
-### `textFragment` (default: `false`)
-
-Keep or strip [text fragment](https://wicg.github.io/scroll-to-text-fragment/) anchors (`#:~:text=…`).
-
-```typescript
-urlNormalize("example.com/#:~:text=hello") // → "https://example.com"
 urlNormalize("example.com/#:~:text=hello", { textFragment: true }) // → "https://example.com/#:~:text=hello"
-```
-
-### `customProtocol` (default: `false`)
-
-Allow non-standard protocols like `tg://`, `ftps://`, etc. `javascript://` and `vbscript://` are always rejected, as they run code on click.
-
-```typescript
-urlNormalize("tg://example.com") // → null
 urlNormalize("tg://example.com", { customProtocol: true }) // → "tg://example.com"
-```
-
-### `forceProtocol`
-
-Replace the protocol with a fixed value regardless of input.
-
-```typescript
 urlNormalize("https://example.com", { forceProtocol: "sftp" }) // → "sftp://example.com"
-```
-
-### `unicode` (default: `false`)
-
-Return Unicode domain names instead of Punycode.
-
-```typescript
-urlNormalize("👻💥.ws", { unicode: true }) // → "https://👻💥.ws"
 urlNormalize("https://xn--9q8huc.ws", { unicode: true }) // → "https://👻💥.ws"
 ```
 
-## Advanced
-
-### `createUrlNormalize`
-
-Creates a reusable normalizer with preset options.
+## More functions
 
 ```typescript
-import { createUrlNormalize } from "url-normalize"
+import { createUrlNormalize, extractDomain, humanizeUrl, urlNormalizeOrFail } from "url-normalize"
 
+// a normalizer with preset options
 const normalize = createUrlNormalize({ defaultProtocol: "http", fragment: false })
-
 normalize("example.com/foo#tag") // → "http://example.com/foo"
-```
 
-### `urlNormalizeOrFail`
+// the bare domain
+extractDomain("https://www.example.com:8080/?a=1#tag") // → "example.com"
 
-Throws instead of returning `null` on invalid input.
-
-```typescript
-import { urlNormalizeOrFail } from "url-normalize"
-
-urlNormalizeOrFail("invalid") // throws
-urlNormalizeOrFail("example.com") // → "https://example.com"
-```
-
-### `extractDomain` / `extractDomainOrFail`
-
-Extracts the bare domain from any URL.
-
-```typescript
-import { extractDomain, extractDomainOrFail } from "url-normalize"
-
-extractDomain("https://example.com:8080/?a=1&b=2#tag") // → "example.com"
-extractDomain("invalid") // → null
-extractDomainOrFail("invalid") // throws
-```
-
-### `humanizeUrl` / `humanizeUrlOrFail`
-
-Strips the protocol for display-friendly URLs.
-
-```typescript
-import { humanizeUrl, humanizeUrlOrFail } from "url-normalize"
-
+// for display, without the protocol
 humanizeUrl("https://example.com/foo/bar") // → "example.com/foo/bar"
-humanizeUrl("invalid") // → null
-humanizeUrlOrFail("invalid") // throws
+
+// throws instead of returning null; extractDomainOrFail and humanizeUrlOrFail too
+urlNormalizeOrFail("example") // throws
 ```
 
-## Similar
+## Compared to normalize-url
 
-- [sindresorhus/normalize-url](https://github.com/sindresorhus/normalize-url)
+[normalize-url](https://github.com/sindresorhus/normalize-url) is the popular choice and has more options. url-normalize is stricter about what counts as a URL and ships the helpers above:
+
+|                       | url-normalize | normalize-url           |
+| --------------------- | ------------- | ----------------------- |
+| `example`             | `null`        | `"http://example"`      |
+| `javascript:alert(1)` | `null`        | `"javascript:alert(1)"` |
+| `example.com`         | `"https://…"` | `"http://…"`            |
+| Domain and display    | built in      | –                       |
+
+## License
+
+[MIT](LICENSE)
