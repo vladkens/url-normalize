@@ -1,4 +1,5 @@
-import { toUnicode } from "punycode"
+// bundled; plain "punycode" resolves to the deprecated node builtin
+import { toUnicode } from "punycode/punycode.es6.js"
 
 export type Options = {
   auth?: boolean
