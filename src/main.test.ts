@@ -96,6 +96,8 @@ test("should normalize path", () => {
 
   t("example.com/@user", "https://example.com/@user")
   t("example.com/%7Efoo", "https://example.com/~foo")
+  t("example.com/a%2Fb", "https://example.com/a%2Fb")
+  t("example.com/100%2541", "https://example.com/100%2541") // #5
   t("example.com/Foo/Bar", "https://example.com/Foo/Bar")
 
   t("example.com/https://google.com", "https://example.com/https://google.com")
@@ -127,6 +129,14 @@ test("should normalize query params", () => {
   t("example.com/?b=bar&a=foo", "https://example.com/?a=foo&b=bar")
   t(`example.com?foo=bar*|<>:"`, "https://example.com/?foo=bar*|%3C%3E:%22")
   t("example.com/?url=https://example.com", "https://example.com/?url=https://example.com")
+  t("example.com/?url=https%3A%2F%2Fexample.com", "https://example.com/?url=https://example.com")
+
+  // keep escapes which change query meaning when decoded (#5)
+  t("example.com/?q=R%26D", "https://example.com/?q=R%26D")
+  t("example.com/?q=C%2B%2B", "https://example.com/?q=C%2B%2B")
+  t("example.com/?a%3Db=1", "https://example.com/?a%3Db=1")
+  t("example.com/?q=100%25", "https://example.com/?q=100%25")
+  t("example.com/?q=a%23b", "https://example.com/?q=a%23b")
 })
 
 test("should normalize hash", () => {
