@@ -22,7 +22,7 @@
 ### Maintenance
 
 - Bundled `punycode`: no dependencies, no `DEP0040` warning from Node's deprecated builtin, under 2 KB brotli
-- Fixed the readme: `port` defaults to `true`, 14 options, `index: false` strips any `index.*`
+- Rewrote the readme: examples first, all options in one table, a comparison with normalize-url; it also had `port` defaulting to `false`, 12 options and only `index.html` stripped
 - Updated dev dependencies; tested on Node 22, 24 and 26
 - Releases are published from CI with npm Trusted Publishing and provenance, with no npm token
 
